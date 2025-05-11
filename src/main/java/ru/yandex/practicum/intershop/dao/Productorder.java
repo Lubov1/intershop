@@ -25,4 +25,8 @@ public class Productorder {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    public Productorder(Productorderid productorderid, int quantity) {
+        this.productorderid = productorderid;
+        this.quantity = 1;
+    }
 }

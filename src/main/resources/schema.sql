@@ -5,7 +5,7 @@ CREATE TABLE if not exists PRODUCT(
     PRICE DECIMAL(10,2) NOT NULL,
     IMAGE bytea
 );
-CREATE TABLE if not exists Basket(
+CREATE TABLE if not exists BASKETITEM(
                                        ID serial primary key,
                                        QUANTITY INT NOT NULL,
                                         product_id BIGINT NOT NULL,
@@ -16,10 +16,17 @@ CREATE TABLE if not exists ORDERS(
                                       PRICE DECIMAL(10,2) NOT NULL
 );
 CREATE TABLE if not exists PRODUCTORDER(
-                                      ID serial primary key ,
                                       QUANTITY INT NOT NULL,
                                         order_id BIGINT NOT NULL ,
-                                        product_id BIGINT NOT NULL ,
+                                        product_id serial primary key,
                                        FOREIGN KEY (order_id) REFERENCES ORDERS(ID),
                                         FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
 );
+
+insert into PRODUCT (name, DESCRIPTION, PRICE, image) values ('Первый продукт', 'Описание', 10.02, NULL);
+insert into PRODUCT (name, DESCRIPTION, PRICE, image) values ('Второй продукт', 'Описание', 10.02, NULL);
+insert into PRODUCT (name, DESCRIPTION, PRICE, image) values ('Третий продукт', 'Описание', 10.02, NULL);
+insert into PRODUCT (name, DESCRIPTION, PRICE, image) values ('Четвертый продукт', 'Описание', 10.02, NULL);
+insert into PRODUCT (name, DESCRIPTION, PRICE, image) values ('Пятый продукт', 'Описание', 10.02, NULL);
+insert into PRODUCT (name, DESCRIPTION, PRICE, image) values ('Шестой продукт', 'Описание', 10.02, NULL);
+

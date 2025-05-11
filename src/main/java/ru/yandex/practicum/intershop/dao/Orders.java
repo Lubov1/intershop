@@ -22,4 +22,8 @@ public class Orders {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Productorder> productorders;
+
+    public Orders(BigDecimal price) {
+        this.price = price;
+    }
 }
