@@ -10,7 +10,6 @@ import ru.yandex.practicum.intershop.dao.Productorder;
 import ru.yandex.practicum.intershop.dao.Productorderid;
 import ru.yandex.practicum.intershop.dto.Order;
 import ru.yandex.practicum.intershop.dto.OrderItem;
-import ru.yandex.practicum.intershop.dto.OrderItem;
 import ru.yandex.practicum.intershop.repositories.OrderRepository;
 import ru.yandex.practicum.intershop.repositories.ProductorderRepository;
 
