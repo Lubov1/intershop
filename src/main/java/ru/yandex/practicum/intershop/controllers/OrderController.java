@@ -25,8 +25,4 @@ public class OrderController {
         model.addAttribute("order", ordersService.getOrder(id));
         return "orders";
     }
-
-
-
-
 }

@@ -33,6 +33,7 @@ public class OrdersService {
         return order.getId();
     }
 
+    @Transactional(readOnly = true)
     public Order getOrder(Long id) throws NotFoundException {
         Optional<Orders> order = orderRepository.findById(id);
         if (order.isPresent()) {
@@ -42,11 +43,13 @@ public class OrdersService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<Order> getOrders() {
         return orderRepository.findAll().stream()
                 .map(orders->new Order(orders, getOrderItems(orders.getId()))).toList();
     }
 
+    @Transactional(readOnly = true)
     List<OrderItem> getOrderItems(Long orderId){
         return productorderRepository.findAllByOrderId(orderId).stream()
                 .map(OrderItem::new).toList();
