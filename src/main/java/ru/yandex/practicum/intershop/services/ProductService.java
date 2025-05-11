@@ -11,6 +11,8 @@ import ru.yandex.practicum.intershop.dto.ProductDto;
 import ru.yandex.practicum.intershop.repositories.ProductRepository;
 import javassist.NotFoundException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,8 +32,16 @@ public class ProductService {
         };
 
         return products.map(this::mapToDto);
+    }
 
-
+    public List<List<ProductDto>> convertToRows(Page<ProductDto> pages) {
+        List<ProductDto> products = pages.getContent();
+        List<List<ProductDto>> rows = new ArrayList<>();
+        for (int i = 0; i < products.size(); i += 3) {
+            int end = Math.min(i + 3, products.size());
+            rows.add(products.subList(i, end));
+        }
+        return rows;
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +53,8 @@ public class ProductService {
         return mapToDto(product.get());
     }
 
-    private int getQuantity(Product product) {
+    @Transactional(readOnly = true)
+    int getQuantity(Product product) {
         return cartService.getQuantity(product);
     }
 

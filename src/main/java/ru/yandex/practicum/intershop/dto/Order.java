@@ -12,10 +12,11 @@ import java.util.List;
 public class Order {
     Long id;
     BigDecimal price;
-    List<OrderItem> items;
-    public Order(Orders orders, List<OrderItem> items) {
+    List<OrderItem> orderItems;
+
+    public Order(Orders orders, List<OrderItem> orderItems) {
         this.id = orders.getId();
         this.price = orders.getPrice();
-        this.items = items;
+        this.orderItems = orderItems;
     }
 }

@@ -24,8 +24,6 @@ import java.util.Optional;
 public class ProductController {
 
     private ProductService productService;
-    private CartService cartService;
-
 
     @GetMapping
     public String getProducts(Model model, @RequestParam(defaultValue = "0") int page,
@@ -33,14 +31,7 @@ public class ProductController {
                               @RequestParam(defaultValue = "5") int pageSize) {
 
         Page<ProductDto> pages = productService.getAllProducts(page, pageSize, sort);
-        List<ProductDto> products = pages.getContent();
-
-
-        List<List<ProductDto>> rows = new ArrayList<>();
-        for (int i = 0; i < products.size(); i += 3) {
-            int end = Math.min(i + 3, products.size());
-            rows.add(products.subList(i, end));
-        }
+        List<List<ProductDto>> rows = productService.convertToRows(pages);
 
         model.addAttribute("rows", rows);
         model.addAttribute("page", pages);
@@ -52,8 +43,6 @@ public class ProductController {
     @GetMapping("/product/{id}")
     public String getProduct(@PathVariable long id, Model model) throws NotFoundException {
         ProductDto product = productService.getProductById(id);
-
-
         model.addAttribute("product", product);
 
         return "item";
