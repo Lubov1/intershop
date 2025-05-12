@@ -18,7 +18,6 @@ import java.util.Optional;
 public class ProductService {
 
     private ProductRepository productRepository;
-    private CartService cartService;
 
     @Transactional(readOnly = true)
     public Page<ProductDto> getAllProducts(int page, int size, String sort) {
@@ -51,23 +50,9 @@ public class ProductService {
         return mapToDto(product.get());
     }
 
-    @Transactional(readOnly = true)
-    public Product getProduct(long id) throws NotFoundException {
-        Optional<Product> product = productRepository.findById(id);
-        if (!product.isPresent()) {
-            throw new NotFoundException("product not found");
-        }
-        return product.get();
-    }
-
-    @Transactional(readOnly = true)
-    int getQuantity(Product product) {
-        return cartService.getQuantity(product);
-    }
-
     ProductDto mapToDto(Product product) {
         return new ProductDto(product.getId(),
                 product.getName(), product.getDescription(), product.getPrice(),
-                product.getImage(), getQuantity(product));
+                product.getImage(), product.getBasketItem().getQuantity());
     }
 }
