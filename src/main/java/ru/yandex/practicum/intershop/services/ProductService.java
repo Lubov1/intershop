@@ -64,7 +64,7 @@ public class ProductService {
     int getQuantity(Product product) {
         return cartService.getQuantity(product);
     }
-
+    //todo transactions, optimisation
     ProductDto mapToDto(Product product) {
         return new ProductDto(product.getId(),
                 product.getName(), product.getDescription(), product.getPrice(),

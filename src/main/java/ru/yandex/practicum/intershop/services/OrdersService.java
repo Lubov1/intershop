@@ -23,7 +23,6 @@ import java.util.Optional;
 public class OrdersService {
     private OrderRepository orderRepository;
     private ProductorderRepository productorderRepository;
-    private ProductRepository productRepository;
 
     @Transactional
     public Long saveOrder(List<BasketItem> items) throws NotFoundException {
@@ -31,7 +30,7 @@ public class OrdersService {
         Orders order = new Orders();
         List<Productorder> productorders = items.stream()
                 .map(a-> new Productorder(new Productorderid(a.getProductId()),
-                a.getQuantity(), order, productRepository.findById(a.getProductId()).get())).toList();
+                a.getQuantity(), order, a.getProduct())).toList();
 
         order.setProductorders(productorders);
         order.setPrice(getPrice(items));
