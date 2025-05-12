@@ -18,7 +18,8 @@ CREATE TABLE if not exists ORDERS(
 CREATE TABLE if not exists PRODUCTORDER(
                                       QUANTITY INT NOT NULL,
                                         order_id BIGINT NOT NULL ,
-                                        product_id serial primary key,
+                                        product_id BIGINT NOT NULL,
+                                        PRIMARY KEY(order_id, product_id),
                                        FOREIGN KEY (order_id) REFERENCES ORDERS(ID),
                                         FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
 );

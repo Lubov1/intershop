@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Orders;
 import ru.yandex.practicum.intershop.dao.Productorder;
-import ru.yandex.practicum.intershop.dao.Productorderid;
 import ru.yandex.practicum.intershop.dto.Order;
 import ru.yandex.practicum.intershop.dto.OrderItem;
 import ru.yandex.practicum.intershop.repositories.OrderRepository;
@@ -26,11 +25,11 @@ public class OrdersService {
     private ProductRepository productRepository;
 
     @Transactional
-    public Long saveOrder(List<BasketItem> items) throws NotFoundException {
+    public Long saveOrder(List<BasketItem> items) {
 
         Orders order = new Orders();
         List<Productorder> productorders = items.stream()
-                .map(a-> new Productorder(new Productorderid(a.getProductId()),
+                .map(a-> new Productorder(
                 a.getQuantity(), order, productRepository.findById(a.getProductId()).get())).toList();
 
         order.setProductorders(productorders);

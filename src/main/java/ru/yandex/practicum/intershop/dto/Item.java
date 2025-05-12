@@ -24,4 +24,8 @@ public class Item {
         this.image = product.getImage();
         this.quantity = quantity;
     }
+
+    public BigDecimal getPrice() {
+        return price.multiply(new BigDecimal(quantity));
+    }
 }

@@ -25,4 +25,10 @@ public class Productorder {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    public Productorder(int quantity, Orders order, Product product) {
+        this.quantity = quantity;
+        this.order = order;
+        this.product = product;
+        this.productorderid = new Productorderid(product.getId(), order.getId());
+    }
 }
