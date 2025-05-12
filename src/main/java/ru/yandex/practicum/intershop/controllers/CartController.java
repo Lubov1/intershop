@@ -2,6 +2,7 @@ package ru.yandex.practicum.intershop.controllers;
 
 import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CartController {
     private CartService cartService;
+
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public String getCart(Model model) {
         List<Item> basketItems = cartService.getBasketItems();
@@ -23,6 +26,7 @@ public class CartController {
         return "cart";
     }
 
+    @ResponseStatus(HttpStatus.SEE_OTHER)
     @PostMapping("/update")
     public String addToCart(@RequestParam Long productId,
                             @RequestParam String action,
@@ -34,6 +38,7 @@ public class CartController {
         return "redirect:" + (referer != null ? referer : "/cart");
     }
 
+    @ResponseStatus(HttpStatus.SEE_OTHER)
     @PostMapping("/buy")
     public String buy(Model model) throws NotFoundException{
         Long orderId = cartService.makeOrder();
