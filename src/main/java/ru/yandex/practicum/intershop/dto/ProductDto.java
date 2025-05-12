@@ -1,7 +1,5 @@
 package ru.yandex.practicum.intershop.dto;
 
-import jakarta.persistence.Column;
-import ru.yandex.practicum.intershop.dao.Product;
 
 import java.math.BigDecimal;
 

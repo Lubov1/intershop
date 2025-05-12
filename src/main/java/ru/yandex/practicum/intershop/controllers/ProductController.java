@@ -10,13 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.intershop.dto.ProductDto;
-import ru.yandex.practicum.intershop.services.CartService;
 import ru.yandex.practicum.intershop.services.ProductService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/main")
@@ -42,7 +38,7 @@ public class ProductController {
 
     @GetMapping("/product/{id}")
     public String getProduct(@PathVariable long id, Model model) throws NotFoundException {
-        ProductDto product = productService.getProductById(id);
+        ProductDto product = productService.getProductDto(id);
         model.addAttribute("product", product);
 
         return "item";

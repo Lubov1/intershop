@@ -11,6 +11,7 @@ import ru.yandex.practicum.intershop.dao.Productorderid;
 import ru.yandex.practicum.intershop.dto.Order;
 import ru.yandex.practicum.intershop.dto.OrderItem;
 import ru.yandex.practicum.intershop.repositories.OrderRepository;
+import ru.yandex.practicum.intershop.repositories.ProductRepository;
 import ru.yandex.practicum.intershop.repositories.ProductorderRepository;
 
 import java.math.BigDecimal;
@@ -22,14 +23,20 @@ import java.util.Optional;
 public class OrdersService {
     private OrderRepository orderRepository;
     private ProductorderRepository productorderRepository;
+    private ProductRepository productRepository;
 
     @Transactional
-    public Long saveOrder(List<BasketItem> items){
-        Orders order = orderRepository.save(new Orders(getPrice(items)));
+    public Long saveOrder(List<BasketItem> items) throws NotFoundException {
 
-        items.stream().map(a->new Productorder(new Productorderid(a.getProductId(), order.getId()),
-                a.getQuantity())).forEach(productorderRepository::save);
-        return order.getId();
+        Orders order = new Orders();
+        List<Productorder> productorders = items.stream()
+                .map(a-> new Productorder(new Productorderid(a.getProductId()),
+                a.getQuantity(), order, productRepository.findById(a.getProductId()).get())).toList();
+
+        order.setProductorders(productorders);
+        order.setPrice(getPrice(items));
+
+        return orderRepository.save(order).getId();
     }
 
     @Transactional(readOnly = true)

@@ -3,7 +3,6 @@ package ru.yandex.practicum.intershop.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.intershop.dao.Product;
-import ru.yandex.practicum.intershop.dao.Productorder;
 
 import java.math.BigDecimal;
 

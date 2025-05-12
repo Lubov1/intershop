@@ -1,8 +1,6 @@
 package ru.yandex.practicum.intershop.services;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,12 +43,21 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductDto getProductById(long id) throws NotFoundException {
+    public ProductDto getProductDto(long id) throws NotFoundException {
         Optional<Product> product = productRepository.findById(id);
         if (!product.isPresent()) {
             throw new NotFoundException("product not found");
         }
         return mapToDto(product.get());
+    }
+
+    @Transactional(readOnly = true)
+    public Product getProduct(long id) throws NotFoundException {
+        Optional<Product> product = productRepository.findById(id);
+        if (!product.isPresent()) {
+            throw new NotFoundException("product not found");
+        }
+        return product.get();
     }
 
     @Transactional(readOnly = true)

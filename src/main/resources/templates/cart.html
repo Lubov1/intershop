@@ -16,27 +16,27 @@
 </a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
    <!-- Итерируемся по каждому товару -->
-    <tr th:each="product : ${basketItems}">
+    <tr th:each="item : ${items}">
         <td>
             <table>
                 <tr>
                     <td>
                         <!-- В src ссылка изображение товара -->
-                        <img class="post-img" th:src="'data:image/png;base64,' + ${product.product.image}" alt="Изображение поста">
+                        <img class="post-img" th:src="'data:image/png;base64,' + ${item.image}" alt="Изображение поста">
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <!-- В text название товара -->
-                        <b th:text="${product.product.name}"></b>
+                        <b th:text="${item.name}"></b>
                     </td>
                     <td>
                         <!-- В text цена товара -->
-                        <b th:text="${product.product.price}"></b>
+                        <b th:text="${item.price}"></b>
                     </td>
                 </tr>
                 <!-- В text описание товара -->
-                <tr><td th:text="${product.product.description}"></td></tr>
+                <tr><td th:text="${item.description}"></td></tr>
                 <tr>
                     <td>
                     	<!-- 
@@ -44,10 +44,10 @@
                     		Передается параметр запроса action=[minus|plus]
                     	-->
                         <form th:action="@{/cart/update}" method="post">
-                            <input type="hidden" name="productId" th:value="${product.product.id}" />
+                            <input type="hidden" name="productId" th:value="${item.id}" />
                             <button name="action" value="minus">-</button>
                             <!-- В text количество товара в корзине -->
-                            <span th:text="${product.quantity}"></span>
+                            <span th:text="${item.quantity}"></span>
                             <button name="action" value="plus">+</button>
                             <button name="action" value="delete" style="float:right;">&cross;</button>
                         </form>
@@ -68,7 +68,7 @@
             	В action ссылка на страницу оформления заказа.
             	В if true, если в корзине есть товары, false, если нет
             -->
-            <form th:action="@{/cart/buy}" method="post" th:if="${!basketItems.isEmpty()}">
+            <form th:action="@{/cart/buy}" method="post" th:if="${!items.isEmpty()}">
                 <button>Купить</button>
             </form>
         </td>

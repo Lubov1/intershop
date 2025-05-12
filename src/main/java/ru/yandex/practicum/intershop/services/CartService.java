@@ -9,7 +9,6 @@ import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Product;
 import ru.yandex.practicum.intershop.dto.Item;
 import ru.yandex.practicum.intershop.repositories.CartRepository;
-import ru.yandex.practicum.intershop.repositories.OrderRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,8 +29,7 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public Optional<BasketItem> getBasketItem(Long id) {
-        Optional<BasketItem> item = cartRepository.findById(id);
-        return item;
+        return cartRepository.findById(id);
     }
 
     @Transactional
@@ -76,18 +74,19 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
-    public BigDecimal getTotalPrice(){
-        return cartRepository.findAll().stream()
-                .map(BasketItem::getPrice).reduce(BigDecimal.valueOf(0), BigDecimal::add);
+    public BigDecimal getTotalPrice(List<Item> items) {
+        return items.stream()
+                .map(Item::getPrice).reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
+    @Transactional(readOnly = true)
     public int getQuantity(Product product){
         Optional<BasketItem> basketItem = getBasketItem(product.getId());
         return basketItem.map(BasketItem::getQuantity).orElse(0);
     }
 
     @Transactional
-    public Long makeOrder() {
+    public Long makeOrder() throws NotFoundException{
         List<BasketItem> basketItems = cartRepository.findAll();
         Long orderId = ordersService.saveOrder(basketItems);
         cartRepository.deleteAll(basketItems);

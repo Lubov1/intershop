@@ -21,4 +21,7 @@ public class Product {
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
     private String image;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private BasketItem basketItem;
 }
