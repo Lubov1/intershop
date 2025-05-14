@@ -51,8 +51,9 @@ public class ProductService {
     }
 
     ProductDto mapToDto(Product product) {
+        int quantity = product.getBasketItem() == null ? 0 : product.getBasketItem().getQuantity();
         return new ProductDto(product.getId(),
                 product.getName(), product.getDescription(), product.getPrice(),
-                product.getImage(), product.getBasketItem().getQuantity());
+                product.getImage(), quantity);
     }
 }

@@ -6,6 +6,7 @@
 
 
     <include file="/db/changelog/changeset/schema.sql"/>
+    <include file="/db/changelog/changeset/seq.sql"/>
     <include file="/db/changelog/changeset/first_data.sql"/>
 
 </databaseChangeLog>

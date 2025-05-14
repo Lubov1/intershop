@@ -22,6 +22,6 @@ public class Product {
     private BigDecimal price;
     private String image;
 
-    @OneToOne(mappedBy = "product")
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private BasketItem basketItem;
 }
