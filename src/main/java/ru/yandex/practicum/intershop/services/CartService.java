@@ -27,11 +27,6 @@ public class CartService {
                 basketItem.getQuantity())).toList();
     }
 
-    @Transactional(readOnly = true)
-    public Optional<BasketItem> getBasketItem(Long id) {
-        return cartRepository.findById(id);
-    }
-
     @Transactional
     public int changeQuantity(long id, String action) throws NotFoundException {
         Optional<BasketItem> basketItem = cartRepository.findById(id);
@@ -79,14 +74,8 @@ public class CartService {
                 .map(Item::getPrice).reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 
-    @Transactional(readOnly = true)
-    public int getQuantity(Product product){
-        Optional<BasketItem> basketItem = getBasketItem(product.getId());
-        return basketItem.map(BasketItem::getQuantity).orElse(0);
-    }
-
     @Transactional
-    public Long makeOrder() throws NotFoundException{
+    public Long makeOrder() {
         List<BasketItem> basketItems = cartRepository.findAll();
         Long orderId = ordersService.saveOrder(basketItems);
         cartRepository.deleteAll(basketItems);

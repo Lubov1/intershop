@@ -35,18 +35,17 @@ class ProductServiceTest {
     @MockitoBean
     private ProductRepository productRepository;
 
-    @MockitoBean
-    private CartService cartService;
-
 
 
     @Test
     void getAllProducts() {
-        List<Product> products = List.of(new Product(), new Product());
+        Long productId = 1L;
+        Product product = new Product(productId, "Первый продукт", "Описание", BigDecimal.ONE, null, new BasketItem(productId, 6,null));
+        List<Product> products = List.of(product, product);
         Page<Product> page = new PageImpl<>(products);
         when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        assertEquals(2, productService.getAllProducts(0,2,"NONE").getContent().size());
+        assertEquals(2, productService.getAllProducts(0,2,"NO").getContent().size());
     }
 
     @Test
@@ -67,18 +66,10 @@ class ProductServiceTest {
     void getProductDto() throws NotFoundException {
         Long id = 1L;
         ProductDto productDto = new ProductDto(id, "Первый продукт", "Описание", BigDecimal.ONE, null, 6);
-        Product product = new Product(id, "Первый продукт", "Описание", BigDecimal.ONE, null, new BasketItem());
+        Product product = new Product(id, "Первый продукт", "Описание", BigDecimal.ONE, null, new BasketItem(id, 6,null));
         when(productRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(product));
 
         assertEquals(productService.getProductDto(id), productDto);
-    }
-
-    @Test
-    void getQuantity() {
-        when(cartService.getQuantity(any())).thenReturn(7);
-
-        assertEquals(7, productService.getQuantity(new Product()));
-
     }
 
     @Test
@@ -87,8 +78,8 @@ class ProductServiceTest {
         Product product = new Product(id, "Первый продукт", "Описание", BigDecimal.ONE, null, new BasketItem(id, 6,null));
 
         ProductDto productDto = productService.mapToDto(product);
-        assertEquals(productDto.quantity(), product.getBasketItem().getQuantity());
-        assertEquals(productDto.name(), product.getName());
+        assertEquals(product.getBasketItem().getQuantity(), productDto.quantity());
+        assertEquals(product.getName(), productDto.name());
 
     }
 }

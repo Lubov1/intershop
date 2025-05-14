@@ -41,7 +41,10 @@ public class OrdersService {
     public Order getOrder(Long id) throws NotFoundException {
         Optional<Orders> order = orderRepository.findById(id);
         if (order.isPresent()) {
-            return new Order(order.get(), getOrderItems(order.get().getId()));
+            return new Order(order.get(),
+                    order.get().getProductorders()
+                            .stream()
+                            .map(OrderItem::new).toList());
         } else {
             throw new NotFoundException("Order with id " + id + "was not found");
         }
@@ -50,13 +53,8 @@ public class OrdersService {
     @Transactional(readOnly = true)
     public List<Order> getOrders() {
         return orderRepository.findAll().stream()
-                .map(orders->new Order(orders, getOrderItems(orders.getId()))).toList();
-    }
-
-    @Transactional(readOnly = true)
-    List<OrderItem> getOrderItems(Long orderId){
-        return productorderRepository.findAllByOrderId(orderId).stream()
-                .map(OrderItem::new).toList();
+                .map(orders->new Order(orders, orders.getProductorders()
+                        .stream().map(OrderItem::new).toList())).toList();
     }
 
     public BigDecimal getPrice(List<BasketItem> items){
