@@ -26,7 +26,7 @@ public class OrderController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/order/{id}")
-    public String getOrders(Model model, @PathVariable Long id) throws NotFoundException {
+    public String getOrder(Model model, @PathVariable Long id) throws NotFoundException {
         model.addAttribute("order", ordersService.getOrder(id));
         return "order";
     }

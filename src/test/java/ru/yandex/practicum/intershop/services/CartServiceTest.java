@@ -3,6 +3,7 @@ package ru.yandex.practicum.intershop.services;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,6 +31,9 @@ class CartServiceTest {
     @MockitoBean
     private CartRepository cartRepository;
 
+    @MockitoBean
+    private OrdersService ordersService;
+
     @Test
     void getBasketItems() {
     }
@@ -38,9 +42,10 @@ class CartServiceTest {
     void changeQuantity() throws NotFoundException {
         Long id = 1L;
         Optional<BasketItem> basketItem = Optional.of(new BasketItem(id, 6, null));
+        when(cartRepository.findById(Mockito.anyLong())).thenReturn(basketItem);
+
         int quantity = cartService.changeQuantity(id, "plus");
 
-        when(cartRepository.findById(id)).thenReturn(basketItem);
         assertEquals(7, quantity);
     }
 
