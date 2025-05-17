@@ -21,7 +21,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class OrdersService {
     private OrderRepository orderRepository;
-    private ProductorderRepository productorderRepository;
 
     @Transactional
     public Long saveOrder(List<BasketItem> items) {

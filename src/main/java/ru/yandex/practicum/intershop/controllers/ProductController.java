@@ -23,9 +23,10 @@ public class ProductController {
     @GetMapping
     public String getProducts(Model model, @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "NO") String sort,
-                              @RequestParam(defaultValue = "5") int pageSize) {
+                              @RequestParam(defaultValue = "5") int pageSize,
+                              @RequestParam(required = false) String search) {
 
-        Page<ProductDto> pages = productService.getAllProducts(page, pageSize, sort);
+        Page<ProductDto> pages = productService.getAllProducts(page, pageSize, sort, search);
         List<List<ProductDto>> rows = productService.convertToRows(pages);
 
         model.addAttribute("rows", rows);

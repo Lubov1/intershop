@@ -45,7 +45,7 @@ class ProductServiceTest {
         Page<Product> page = new PageImpl<>(products);
         when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        assertEquals(2, productService.getAllProducts(0,2,"NO").getContent().size());
+        assertEquals(2, productService.getAllProducts(0,2,"NO", null).getContent().size());
     }
 
     @Test

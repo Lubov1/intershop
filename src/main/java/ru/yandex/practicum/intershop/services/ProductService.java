@@ -20,14 +20,15 @@ public class ProductService {
     private ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public Page<ProductDto> getAllProducts(int page, int size, String sort) {
-        Page<Product> products = switch (sort) {
-            case "ALPHA" -> productRepository.findAll(PageRequest.of(page, size, Sort.by("name")));
-            case "PRICE" -> productRepository.findAll(PageRequest.of(page, size, Sort.by("price")));
-            case "NO" -> productRepository.findAll(PageRequest.of(page, size));
+    public Page<ProductDto> getAllProducts(int page, int size, String sort, String search) {
+        PageRequest pageRequest = switch (sort) {
+            case "ALPHA" -> PageRequest.of(page, size, Sort.by("name"));
+            case "PRICE" -> PageRequest.of(page, size, Sort.by("price"));
+            case "NO" -> PageRequest.of(page, size);
             default -> throw new IllegalStateException("Unexpected value: " + sort);
         };
-
+        Page<Product> products = search==null ? productRepository.findAll(pageRequest)
+                : productRepository.findAllByNameContaining(pageRequest, search);
         return products.map(this::mapToDto);
     }
 

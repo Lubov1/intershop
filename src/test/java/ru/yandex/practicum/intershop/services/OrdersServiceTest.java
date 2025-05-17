@@ -11,15 +11,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Orders;
 import ru.yandex.practicum.intershop.dao.Product;
-import ru.yandex.practicum.intershop.dao.Productorder;
 import ru.yandex.practicum.intershop.dto.Order;
-import ru.yandex.practicum.intershop.dto.ProductDto;
 import ru.yandex.practicum.intershop.repositories.OrderRepository;
-import ru.yandex.practicum.intershop.repositories.ProductorderRepository;
-import org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,8 +32,6 @@ class OrdersServiceTest {
     @MockitoBean
     private OrderRepository orderRepository;
 
-    @MockitoBean
-    private ProductorderRepository productorderRepository;
     @Test
     void saveOrder() {
         Product product = new Product(1L, "Первый продукт", "Описание", BigDecimal.ONE, null, new BasketItem(1L, 6,null));

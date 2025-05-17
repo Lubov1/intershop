@@ -18,13 +18,13 @@
         <tr>
             <td>
                 <form>
-<!--                    <input type="hidden" name="pageSize" th:value="${page.size}" />-->
-<!--                    <p>-->
-<!--                        <label for="search">Найти: </label>-->
-<!--                        &lt;!&ndash; В value значение со строкой поиска товара, если ничего не ищем, то пустая строка &ndash;&gt;-->
-<!--                        <input id="search" style="width:300px;" name="search" th:value="...">-->
-<!--                        <button name="action">&#128269;</button>-->
-<!--                    </p>-->
+                    <input type="hidden" name="pageSize" th:value="${page.size}" />
+                    <p>
+                        <label for="search">Найти: </label>
+                        <!-- В value значение со строкой поиска товара, если ничего не ищем, то пустая строка -->
+                        <input id="search" style="width:300px;" name="search" th:value="${search}">
+                        <button name="action">&#128269;</button>
+                    </p>
                     <p>
                         <label for="sort">Сортировка: </label>
                         <!-- В selected true, если выбран соответствующий пункт -->
