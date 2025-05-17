@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -23,8 +24,16 @@ public class Product {
     private String description;
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
-    private String image;
+    private byte[] image;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private BasketItem basketItem;
+
+    public Product(String name, String description, BigDecimal price, byte[] image, BasketItem basketItem) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.image = image;
+        this.basketItem = basketItem;
+    }
 }

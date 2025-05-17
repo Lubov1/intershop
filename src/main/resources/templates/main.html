@@ -14,11 +14,11 @@
     <a th:href="@{/cart}" style="float:right;">
         <b>КОРЗИНА &cudarrr;</b>
     </a>
+
     <table style="width:70%;margin-left:auto;margin-right:auto;">
         <tr>
             <td>
                 <form>
-                    <input type="hidden" name="pageSize" th:value="${page.size}" />
                     <p>
                         <label for="search">Найти: </label>
                         <!-- В value значение со строкой поиска товара, если ничего не ищем, то пустая строка -->
@@ -118,6 +118,21 @@
             </td>
         </tr>
     </table>
+
+    <div class="form-container">
+        <h2>Добавить новый пост</h2>
+        <form th:action="@{/main/createItem}" method="post" enctype="multipart/form-data">
+            <label>Название:</label>
+            <input type="text" name="name" required><br>
+            <label>Описание:</label>
+            <textarea name="description" required></textarea><br>
+            <label>Цена:</label>
+            <input type="number" step="0.01" name="price" required></textarea><br>
+            <label>Изображение:</label>
+            <input type="file" name="image"><br>
+            <button type="submit">Сохранить товар</button>
+        </form>
+    </div>
 </body>
 
 </html>

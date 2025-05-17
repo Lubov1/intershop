@@ -23,4 +23,5 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, L
     Page<Product> findAllByNameContaining(Pageable pageable, @Param("str") String name);
     Optional<Product> findById(long id);
 
+    void save(Product product);
 }

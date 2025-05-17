@@ -13,7 +13,7 @@ public class Item {
     String name;
     String description;
     BigDecimal price;
-    String image;
+    byte[] image;
     int quantity;
 
     public Item(Product product, int quantity) {

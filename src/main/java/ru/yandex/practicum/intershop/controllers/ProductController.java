@@ -4,12 +4,16 @@ import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.intershop.dto.ProductDto;
 import ru.yandex.practicum.intershop.services.ProductService;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -43,5 +47,17 @@ public class ProductController {
         model.addAttribute("product", product);
 
         return "item";
+    }
+
+    @ResponseStatus(HttpStatus.SEE_OTHER)
+    @PostMapping(value ="/createItem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String createPost(@RequestParam("name") String name
+            ,@RequestParam("description") String description,
+                             @RequestParam(value = "image", required = false) MultipartFile image,
+                             @RequestParam("price") BigDecimal price
+    ) throws IOException {
+
+        productService.createItem(name, description, image, price);
+        return "redirect:/main";
     }
 }
