@@ -41,7 +41,7 @@
             <input type="hidden" name="productId" th:value="${product.id}" />
             <button name="action" value="minus">-</button>
             <!-- В text количество товара в корзине -->
-            <span th:text="${quantity}"></span>
+            <span th:text="${product.quantity}"></span>
             <button name="action" value="plus">+</button>
             <!-- В if true, если товар еще не был добавлен в корзину, false, если уже был -->
 <!--            <button name="action" value="plus" th:if="..." style="float:right;">В корзину</button>-->

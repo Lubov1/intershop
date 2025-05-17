@@ -52,20 +52,15 @@ public class CartService {
                         cartRepository.save(item);
                         return quantity;
                     } else {
+                        item.getProduct().setBasketItem(null);
                         cartRepository.delete(item);
                         return 0;
                     }
-                }
-                break;
-            case "delete":
-                if (basketItem.isPresent()) {
-                    cartRepository.delete(basketItem.get());
+                } else {
                     return 0;
                 }
-                break;
             default: throw new NotFoundException("Action not recognized");
         }
-        throw new NotFoundException("");
     }
 
     @Transactional(readOnly = true)

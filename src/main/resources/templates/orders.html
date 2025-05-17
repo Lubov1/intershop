@@ -23,7 +23,7 @@
             		В text номер заказа.
             		В href ссылка на страницу заказа. 
             	-->
-                <a th:text="${order.getId()}" th:href="@{'/orders/' + ${order.getId()}}"></a>
+                <a th:text="${order.getId()}" th:href="@{'/orders/order/' + ${order.getId()}}"></a>
             </h2>
             <table>
                 <!-- Итерируемся по товарам в заказе -->
