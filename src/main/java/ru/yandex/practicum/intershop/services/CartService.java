@@ -32,8 +32,8 @@ public class CartService {
         Optional<BasketItem> basketItem = cartRepository.findById(id);
         int quantity;
         BasketItem item;
-        switch (action) {
-            case "plus":
+        return switch (action) {
+            case "plus" -> {
                 if (basketItem.isPresent()) {
                     item = basketItem.get();
                     item.setQuantity(item.getQuantity() + 1);
@@ -42,25 +42,27 @@ public class CartService {
                 }
                 quantity = item.getQuantity();
                 cartRepository.save(item);
-                return quantity;
-            case "minus":
-                if(basketItem.isPresent()) {
+                yield quantity;
+            }
+            case "minus" -> {
+                if (basketItem.isPresent()) {
                     item = basketItem.get();
-                    if (item.getQuantity()>1) {
+                    if (item.getQuantity() > 1) {
                         item.setQuantity(item.getQuantity() - 1);
                         quantity = item.getQuantity();
                         cartRepository.save(item);
-                        return quantity;
+                        yield quantity;
                     } else {
                         item.getProduct().setBasketItem(null);
                         cartRepository.delete(item);
-                        return 0;
+                        yield 0;
                     }
                 } else {
-                    return 0;
+                    yield 0;
                 }
-            default: throw new NotFoundException("Action not recognized");
-        }
+            }
+            default -> throw new NotFoundException("Action not recognized");
+        };
     }
 
     @Transactional(readOnly = true)
