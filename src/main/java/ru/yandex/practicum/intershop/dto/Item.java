@@ -2,6 +2,7 @@ package ru.yandex.practicum.intershop.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Product;
 
 import java.math.BigDecimal;
@@ -16,13 +17,13 @@ public class Item {
     byte[] image;
     int quantity;
 
-    public Item(Product product, int quantity) {
+    public Item(Product product, BasketItem basketItem) {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
         this.price = product.getPrice();
         this.image = product.getImage();
-        this.quantity = quantity;
+        this.quantity = basketItem.getQuantity();
     }
 
     public BigDecimal getPrice() {

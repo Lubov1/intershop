@@ -10,9 +10,8 @@ CREATE TABLE if not exists PRODUCT(
     IMAGE bytea
 );
 CREATE TABLE if not exists BASKETITEM(
-                                       ID serial primary key,
                                        QUANTITY INT NOT NULL,
-                                        product_id BIGINT NOT NULL,
+                                        product_id bigint primary key,
                                         FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
 );
 CREATE TABLE if not exists ORDERS(

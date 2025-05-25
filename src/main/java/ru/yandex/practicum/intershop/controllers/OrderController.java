@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import reactor.core.publisher.Mono;
 import ru.yandex.practicum.intershop.services.OrdersService;
 
 @Controller
@@ -19,15 +20,17 @@ public class OrderController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public String getOrders(Model model) {
-        model.addAttribute("orders", ordersService.getOrders());
-        return "orders";
+    public Mono<String> getOrders(Model model) {
+        return ordersService.getOrders()
+                .doOnNext(orders -> model.addAttribute("orders", orders))
+                .map(order -> "orders");
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/order/{id}")
-    public String getOrder(Model model, @PathVariable Long id) throws NotFoundException {
-        model.addAttribute("order", ordersService.getOrder(id));
-        return "order";
+    public Mono<String> getOrder(Model model, @PathVariable Long id) throws NotFoundException {
+        return ordersService.getOrder(id)
+                        .doOnNext(order -> model.addAttribute("order", order))
+                                .map(order -> "order");
     }
 }

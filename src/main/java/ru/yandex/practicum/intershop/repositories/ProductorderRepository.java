@@ -1,10 +1,14 @@
 package ru.yandex.practicum.intershop.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Flux;
 import ru.yandex.practicum.intershop.dao.Productorder;
 
 import java.util.List;
 
-public interface ProductorderRepository extends JpaRepository<Productorder, Long> {
-    List<Productorder> findAllByOrderId(Long order_id);
+
+public interface ProductorderRepository extends R2dbcRepository<Productorder, Long> {
+    Flux<Productorder> findByOrderId(Long id);
+
+    Flux<Productorder> saveAll(List<Productorder> rStream);
 }

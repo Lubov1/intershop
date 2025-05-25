@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.intershop.dto.Item;
+import reactor.core.publisher.Mono;
+import ru.yandex.practicum.intershop.dto.Action;
 import ru.yandex.practicum.intershop.services.CartService;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/cart")
@@ -19,31 +19,26 @@ public class CartController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public String getCart(Model model) {
-        List<Item> basketItems = cartService.getBasketItems();
-        model.addAttribute("items", basketItems);
-        model.addAttribute("price", cartService.getTotalPrice(basketItems));
-        return "cart";
+    public Mono<String> getCart(Model model) {
+        return cartService.getBasketItems().collectList()
+                .doOnNext(basketItems-> {
+                    model.addAttribute("items", basketItems);
+                    model.addAttribute("price", cartService.getTotalPrice(basketItems));
+                })
+                .map(basketItems->"cart");
     }
 
-    @ResponseStatus(HttpStatus.SEE_OTHER)
-    @PostMapping("/update")
-    public String addToCart(@RequestParam Long productId,
-                            @RequestParam String action,
-                            @RequestHeader(value = "Referer", required = false) String referer,
-                            Model model) throws NotFoundException {
-
-        int quantity = cartService.changeQuantity(productId, action);
-        model.addAttribute("quantity", quantity);
-        return "redirect:" + (referer != null ? referer : "/cart");
+    @PostMapping(value = "/update")
+    public Mono<String> addToCart(@ModelAttribute Action action,
+                                  @RequestHeader(value = "Referer", required = false) String referer) throws NotFoundException {
+        return cartService.changeQuantity(action.productId(), action.action())
+                .map(quantity->"redirect:" + (referer != null ? referer : "/cart"));
     }
 
-    @ResponseStatus(HttpStatus.SEE_OTHER)
     @PostMapping("/buy")
-    public String buy(Model model) throws NotFoundException{
-        Long orderId = cartService.makeOrder();
-
-        model.addAttribute("redirect", true);
-        return "redirect:/orders/order/"+orderId;
+    public Mono<String> buy(Model model) {
+        return cartService.makeOrder()
+        .doOnNext(id->model.addAttribute("redirect", true))
+                .map(orderId ->"redirect:/orders/order/"+orderId+"?redirect=true");
     }
 }
