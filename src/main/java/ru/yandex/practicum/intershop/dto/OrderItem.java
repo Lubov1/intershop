@@ -18,6 +18,7 @@ public class OrderItem {
     private int quantity;
 
     public OrderItem(Long orderId, Product product, int quantity) {
+        this.id = product.getId();
         this.orderId = orderId;
         this.name = product.getName();
         this.description = product.getDescription();
