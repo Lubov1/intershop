@@ -45,7 +45,7 @@ public class ProductService {
                 .zipWith(search != null
                         ? productRepository.countByNameContaining(search)
                         : productRepository.count())
-                .map(tuple-> new PageImpl<>(tuple.getT1(), PageRequest.of(page,size), tuple.getT2()));
+                .map(tuple-> new PageImpl<>(tuple.getT1(), pageRequest, tuple.getT2()));
 
     }
 
@@ -86,7 +86,7 @@ public class ProductService {
                 .map(dataBuffer -> {
                     byte[] bytes = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(bytes);
-                    DataBufferUtils.release(dataBuffer); // важно: освободить буфер!
+                    DataBufferUtils.release(dataBuffer);
                     return bytes;
                 })
                 .flatMap(image -> {

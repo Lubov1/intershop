@@ -50,7 +50,7 @@ public class CartService {
                     existing.setQuantity(existing.getQuantity() + 1);
                     return cartRepository.save(existing);
                 })
-                .switchIfEmpty(cartRepository.insert(id, 1))
+                .switchIfEmpty(Mono.defer(()->cartRepository.insert(id, 3)))
                 .map(BasketItem::getQuantity);
     }
 
