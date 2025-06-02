@@ -33,7 +33,6 @@ public class CartService {
         return cartRepository
                 .findAll()
                 .flatMap(basketItem -> productRepository.findById(basketItem.getProductId())
-                        .doOnNext(System.out::println)
                 .map(product -> new Item(product, basketItem)));
     }
 
@@ -85,7 +84,7 @@ public class CartService {
                         .map(product -> new Item(product, basketItem)))
                 .collectList()
                 .flatMap(basketItems ->  orderRepository.save(new Orders(getTotalPrice(basketItems)))
-                        .flatMap( order ->
+                        .flatMap(order ->
                         productorderRepository.saveAll(basketItems.stream()
                                 .map(basketItem -> new Productorder(basketItem.getId(), order.getId(), basketItem.getQuantity()))
                                 .toList()).then(cartRepository.deleteAll()).thenReturn(order.getId())

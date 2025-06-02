@@ -8,7 +8,5 @@ import java.util.List;
 
 
 public interface ProductorderRepository extends R2dbcRepository<Productorder, Long> {
-    Flux<Productorder> findByOrderId(Long id);
-
     Flux<Productorder> saveAll(List<Productorder> rStream);
 }
