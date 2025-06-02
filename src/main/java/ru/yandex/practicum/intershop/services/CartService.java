@@ -30,8 +30,10 @@ public class CartService {
 
     @Transactional
     public Flux<Item> getBasketItems(){
-        return cartRepository.findAll()
+        return cartRepository
+                .findAll()
                 .flatMap(basketItem -> productRepository.findById(basketItem.getProductId())
+                        .doOnNext(System.out::println)
                 .map(product -> new Item(product, basketItem)));
     }
 
@@ -50,7 +52,7 @@ public class CartService {
                     existing.setQuantity(existing.getQuantity() + 1);
                     return cartRepository.save(existing);
                 })
-                .switchIfEmpty(Mono.defer(()->cartRepository.insert(id, 3)))
+                .switchIfEmpty(Mono.defer(()->cartRepository.insert(id, 1)))
                 .map(BasketItem::getQuantity);
     }
 
