@@ -2,12 +2,6 @@ package ru.yandex.practicum.intershop.controllers;
 
 
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.util.MultiValueMap;
-import ru.yandex.practicum.intershop.dto.ItemDto;
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 

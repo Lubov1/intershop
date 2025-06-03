@@ -1,7 +1,9 @@
 package ru.yandex.practicum.intershop.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,8 +84,12 @@ public class ProductService {
 
     @Transactional
     public Mono<Void> createItem(ItemDto itemDto) {
-        return DataBufferUtils.join(itemDto.getImage().content())
-                .map(dataBuffer -> {
+        Mono<DataBuffer> dataBufferMono = itemDto.getImage() == null
+                ? Mono.empty()
+                : DataBufferUtils.join(itemDto.getImage().content());
+
+        return dataBufferMono
+                .defaultIfEmpty(new DefaultDataBufferFactory().wrap(new byte[0])).map(dataBuffer -> {
                     byte[] bytes = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(bytes);
                     DataBufferUtils.release(dataBuffer);
