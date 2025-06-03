@@ -47,7 +47,6 @@ public class CartService {
 
     Mono<Integer> addItem(Long id) {
         return cartRepository.findByProductId(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("product not found")))
                 .flatMap(existing->{
                     existing.setQuantity(existing.getQuantity() + 1);
                     return cartRepository.save(existing);
