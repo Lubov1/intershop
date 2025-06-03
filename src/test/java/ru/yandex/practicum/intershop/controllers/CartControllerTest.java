@@ -1,6 +1,5 @@
 package ru.yandex.practicum.intershop.controllers;
 
-import org.junit.After;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -45,7 +44,7 @@ class CartControllerTest extends ControllerTest {
     }
 
     @Test
-    void addToCartPlus() throws Exception {
+    void addToCartPlus() {
         Long productId = 1L;
         String action = "plus";
         webTestClient.post().uri(uriBuilder -> uriBuilder
@@ -71,7 +70,7 @@ class CartControllerTest extends ControllerTest {
     }
 
     @Test
-    void addToCartMinus() throws Exception {
+    void addToCartMinus() {
         Long productId = 2L;
         String action = "minus";
         webTestClient.post().uri(uriBuilder -> uriBuilder
@@ -97,8 +96,7 @@ class CartControllerTest extends ControllerTest {
     }
 
     @Test
-//    @Order(4)
-    void notExistAction() throws Exception {
+    void notExistAction() {
         Long productId = 1L;
         String action = "not exist";
         webTestClient.post().uri(uriBuilder -> uriBuilder
@@ -112,7 +110,7 @@ class CartControllerTest extends ControllerTest {
 
     @Test
     @Tag("init-db")
-    void buy() throws Exception {
+    void buy() {
         webTestClient.post().uri(uriBuilder -> uriBuilder
                         .path("/cart/buy")
                         .build())
