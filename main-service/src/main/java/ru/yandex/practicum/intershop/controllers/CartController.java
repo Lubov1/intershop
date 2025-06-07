@@ -1,20 +1,28 @@
 package ru.yandex.practicum.intershop.controllers;
 
+import ch.qos.logback.core.net.server.Client;
 import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.intershop.api.DefaultApi;
+import ru.yandex.practicum.intershop.client.ClientService;
 import ru.yandex.practicum.intershop.dto.Action;
 import ru.yandex.practicum.intershop.services.CartService;
+
+import java.math.BigDecimal;
 
 
 @Controller
 @RequestMapping("/cart")
 @AllArgsConstructor
 public class CartController {
+    @Autowired
+    private ClientService clientService;
     private CartService cartService;
 
     @ResponseStatus(HttpStatus.OK)
@@ -24,6 +32,7 @@ public class CartController {
                 .doOnNext(basketItems-> {
                     model.addAttribute("items", basketItems);
                     model.addAttribute("price", cartService.getTotalPrice(basketItems));
+                    model.addAttribute("orderingAllowed", cartService.orderIsAllowed((BigDecimal) model.getAttribute("price")));
                 })
                 .map(basketItems->"cart");
     }

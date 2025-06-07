@@ -3,10 +3,12 @@ package ru.yandex.practicum.intershop.services;
 
 import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.intershop.client.ClientService;
 import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Orders;
 import ru.yandex.practicum.intershop.dao.Productorder;
@@ -23,10 +25,13 @@ import java.util.List;
 @AllArgsConstructor
 public class CartService {
 
+    @Autowired
+    private ClientService clientService;
     private final OrderRepository orderRepository;
     private CartRepository cartRepository;
     private ProductRepository productRepository;
     private ProductorderRepository productorderRepository;
+
 
     @Transactional
     public Flux<Item> getBasketItems(){
@@ -84,11 +89,21 @@ public class CartService {
                 .flatMap(basketItem -> productRepository.findById(basketItem.getProductId())
                         .map(product -> new Item(product, basketItem)))
                 .collectList()
-                .flatMap(basketItems ->  orderRepository.save(new Orders(getTotalPrice(basketItems)))
-                        .flatMap(order ->
-                        productorderRepository.saveAll(basketItems.stream()
-                                .map(basketItem -> new Productorder(basketItem.getId(), order.getId(), basketItem.getQuantity()))
-                                .toList()).then(cartRepository.deleteAll()).thenReturn(order.getId())
-                        ));
+                .flatMap(items -> clientService.buyItems(getTotalPrice(items)).flatMap(balance-> {
+                    if (balance.compareTo(BigDecimal.ZERO) < 0) {
+                        return Mono.error(new RuntimeException("balance less than zero"));
+                    }
+                    return orderRepository.save(new Orders(getTotalPrice(items)))
+                            .flatMap(order -> productorderRepository
+                                    .saveAll(items.stream()
+                                            .map(basketItem -> new Productorder(basketItem.getId(), order.getId(), basketItem.getQuantity()))
+                                            .toList())
+                                    .then(cartRepository.deleteAll())
+                                    .thenReturn(order.getId()));
+                }));
+    }
+
+    public Mono<Boolean> orderIsAllowed(BigDecimal price) {
+        return clientService.getBalance().map(balance->balance.compareTo(price)>=0);
     }
 }

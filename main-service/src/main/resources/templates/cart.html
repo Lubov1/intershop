@@ -69,7 +69,7 @@
             	В action ссылка на страницу оформления заказа.
             	В if true, если в корзине есть товары, false, если нет
             -->
-            <form th:action="@{/cart/buy}" method="post" th:if="${!items.isEmpty()}">
+            <form th:action="@{/cart/buy}" method="post" th:if="${!items.isEmpty() and orderingAllowed}">
                 <button>Купить</button>
             </form>
         </td>
