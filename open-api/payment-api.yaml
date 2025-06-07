@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: Сервис платежей
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8081
+    description: Локальный сервер
+
+paths:
+  /balance:
+    get:
+      summary: Баланс
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+  /buy:
+    post:
+      summary: Баланс
+      parameters:
+        - name: price
+          in: query
+          required: true
+          schema:
+            type: number
+            minimum: 0
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                items:
+#                  $ref: '#/components/schemas/Balance'
+components:
+  schemas:
+    Balance:
+      type: object
+      properties:
+        amount:
+          type: number
