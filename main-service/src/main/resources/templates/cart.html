@@ -65,13 +65,12 @@
     </tr>
     <tr>
         <td style="text-align:right">
-            <!--
-            	В action ссылка на страницу оформления заказа.
-            	В if true, если в корзине есть товары, false, если нет
-            -->
-            <form th:action="@{/cart/buy}" method="post" th:if="${!items.isEmpty() and orderingAllowed}">
+            <form th:action="@{/cart/buy}" method="post" th:if="${!items.isEmpty() and orderingAllowed and !paymentServiceNotAvailable}">
                 <button>Купить</button>
             </form>
+            <tr th:if="${paymentServiceNotAvailable}">
+                <td>Payment service is not available</td>
+            </tr>
         </td>
     </tr>
 </table>

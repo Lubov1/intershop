@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.intershop.api.DefaultApi;
 import ru.yandex.practicum.intershop.client.domain.Balance;
+import ru.yandex.practicum.intershop.exceptions.PaymentServiceNotAvailableException;
 
 import java.math.BigDecimal;
 
@@ -12,7 +13,8 @@ public class ClientService {
     final DefaultApi defaultApi = new DefaultApi();
 
     public Mono<BigDecimal> getBalance() {
-        return defaultApi.balanceGet().map(Balance::getAmount);
+        return defaultApi.balanceGet().map(Balance::getAmount)
+                .onErrorMap(error -> new PaymentServiceNotAvailableException());
     }
 
     public Mono<BigDecimal> buyItems(BigDecimal price) {

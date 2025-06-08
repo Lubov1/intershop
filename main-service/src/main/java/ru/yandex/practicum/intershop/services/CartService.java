@@ -1,7 +1,6 @@
 package ru.yandex.practicum.intershop.services;
 
 
-import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,9 @@ import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Orders;
 import ru.yandex.practicum.intershop.dao.Productorder;
 import ru.yandex.practicum.intershop.dto.Item;
+import ru.yandex.practicum.intershop.exceptions.ActionNotFoundException;
+import ru.yandex.practicum.intershop.exceptions.PaymentServiceNotAvailableException;
+import ru.yandex.practicum.intershop.exceptions.ProductNotFoundException;
 import ru.yandex.practicum.intershop.repositories.CartRepository;
 import ru.yandex.practicum.intershop.repositories.OrderRepository;
 import ru.yandex.practicum.intershop.repositories.ProductRepository;
@@ -20,6 +22,8 @@ import ru.yandex.practicum.intershop.repositories.ProductorderRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import static ru.yandex.practicum.intershop.services.BalanceStatus.*;
 
 @Service
 @AllArgsConstructor
@@ -46,7 +50,7 @@ public class CartService {
         return switch (action) {
             case "plus" -> addItem(id);
             case "minus" -> reduceItem(id);
-            default -> Mono.error(new NotFoundException("action not found"));
+            default -> Mono.error(new ActionNotFoundException());
         };
     }
 
@@ -62,7 +66,7 @@ public class CartService {
 
     Mono<Integer> reduceItem(Long id) {
         return cartRepository.findByProductId(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("product not found")))
+                .switchIfEmpty(Mono.error(new ProductNotFoundException("product not found")))
                 .map(basketItem -> {
                     basketItem.setQuantity(basketItem.getQuantity() - 1);
                     return basketItem;
@@ -103,7 +107,10 @@ public class CartService {
                 }));
     }
 
-    public Mono<Boolean> orderIsAllowed(BigDecimal price) {
-        return clientService.getBalance().map(balance->balance.compareTo(price)>=0);
+    public Mono<BalanceStatus> orderIsAllowed(BigDecimal price) {
+        return clientService.getBalance()
+                .map(balance->balance.compareTo(price)>=0? OK : INSUFFICIENT_FUNDS)
+                .onErrorResume(PaymentServiceNotAvailableException.class, ex -> Mono.just(SERVICE_UNAVAILABLE));
     }
+
 }

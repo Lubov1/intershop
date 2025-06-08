@@ -13,9 +13,9 @@ import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Product;
 import ru.yandex.practicum.intershop.dto.ItemDto;
 import ru.yandex.practicum.intershop.dto.ProductDto;
+import ru.yandex.practicum.intershop.exceptions.ProductNotFoundException;
 import ru.yandex.practicum.intershop.repositories.CartRepository;
 import ru.yandex.practicum.intershop.repositories.ProductRepository;
-import javassist.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -64,7 +64,7 @@ public class ProductService {
     @Transactional
     public Mono<ProductDto> getProductDto(long id) {
         return productRepository.findById(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
+                .switchIfEmpty(Mono.error(new ProductNotFoundException("Product not found")))
                 .flatMap(product -> cartRepository
                         .findByProductId(product.getId())
                         .defaultIfEmpty(new BasketItem(0L, 0))

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.intershop.controllers;
 
-import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,7 +10,6 @@ import reactor.core.publisher.Mono;
 import ru.yandex.practicum.intershop.dto.ItemDto;
 import ru.yandex.practicum.intershop.services.ProductService;
 
-import java.io.IOException;
 
 @Controller
 @RequestMapping("/main")
@@ -38,14 +36,14 @@ public class ProductController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/product/{id}")
-    public Mono<String> getProduct(@PathVariable long id, Model model) throws NotFoundException {
+    public Mono<String> getProduct(@PathVariable long id, Model model) {
         return productService.getProductDto(id)
                 .doOnNext(product -> model.addAttribute("product", product))
                 .map(productDto -> "item");
     }
 
     @PostMapping(value ="/createItem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<String> createItem(@ModelAttribute ItemDto itemDto) throws IOException {
+    public Mono<String> createItem(@ModelAttribute ItemDto itemDto) {
         return productService.createItem(itemDto)
                 .then(Mono.fromCallable(() -> "redirect:/main"));
     }

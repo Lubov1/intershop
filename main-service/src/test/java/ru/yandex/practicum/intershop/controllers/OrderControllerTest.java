@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderControllerTest extends ControllerTest {
 
     @Test
-    void getOrders() throws Exception {
+    void getOrders() {
         webTestClient.get().uri("/orders")
                 .exchange()
                 .expectStatus().isOk()
@@ -22,7 +22,7 @@ class OrderControllerTest extends ControllerTest {
     }
 
     @Test
-    void GetOrder() throws Exception {
+    void GetOrder() {
         Long orderId = 1L;
 
         webTestClient.get().uri("/orders/order/"+orderId)

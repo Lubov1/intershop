@@ -1,6 +1,5 @@
 package ru.yandex.practicum.intershop.controllers;
 
-import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -28,7 +27,7 @@ public class OrderController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/order/{id}")
-    public Mono<String> getOrder(Model model, @PathVariable Long id) throws NotFoundException {
+    public Mono<String> getOrder(Model model, @PathVariable Long id) {
         return ordersService.getOrder(id)
                         .doOnNext(order -> model.addAttribute("order", order))
                                 .map(order -> "order");
