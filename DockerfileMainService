@@ -1,0 +1,11 @@
+FROM maven:3.9-eclipse-temurin AS builder
+WORKDIR /build
+COPY . .
+RUN mvn -pl main-service -am clean package -DskipTests
+
+FROM openjdk:21-bullseye
+
+COPY --from=builder /build/main-service/target/main-service.jar main-service.jar
+
+EXPOSE 8181
+ENTRYPOINT ["java","-jar","/main-service.jar"]
