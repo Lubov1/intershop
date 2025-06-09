@@ -4,15 +4,36 @@ services:
     image: client:0.0.1
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: DockerfileMainService
     ports:
       - "8080:8080"
     depends_on:
       service-db:
         condition: service_healthy
+      redis-cache:
+        condition: service_healthy
     environment:
       - SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db:5432/postgres
+
+  payment-service:
+    image: payment-service:0.0.1
+    build:
+      context: .
+      dockerfile: DockerfilePaymentService
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+
+  redis-cache:
+    image: redis:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    command: [ "redis-server" ]
 
   service-db:
     image: postgres:14.7-alpine
