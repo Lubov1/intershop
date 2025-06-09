@@ -18,8 +18,7 @@ import java.util.Map;
 @Service
 @AllArgsConstructor
 public class OrdersService {
-    @Autowired
-    DatabaseClient databaseClient;
+    private final DatabaseClient databaseClient;
 
     @Transactional
     public Mono<Order> getOrder(Long id) {

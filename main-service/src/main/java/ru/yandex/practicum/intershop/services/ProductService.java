@@ -1,54 +1,106 @@
 package ru.yandex.practicum.intershop.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.domain.*;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Product;
+import ru.yandex.practicum.intershop.dto.CacheItemProduct;
 import ru.yandex.practicum.intershop.dto.ItemDto;
 import ru.yandex.practicum.intershop.dto.ProductDto;
 import ru.yandex.practicum.intershop.exceptions.ProductNotFoundException;
 import ru.yandex.practicum.intershop.repositories.CartRepository;
 import ru.yandex.practicum.intershop.repositories.ProductRepository;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 
 @Service
-@AllArgsConstructor
 public class ProductService {
+    public ProductService(ReactiveRedisTemplate<String, Product> redisTemplate, ReactiveRedisTemplate<String, CacheItemProduct[]> redisTemplateArray, ProductRepository productRepository, CartRepository cartRepository) {
+        this.redisTemplate = redisTemplate;
+        this.redisTemplateArray = redisTemplateArray;
+        this.productRepository = productRepository;
+        this.cartRepository = cartRepository;
+    }
 
-    private ProductRepository productRepository;
-    private CartRepository cartRepository;
+    private final ReactiveRedisTemplate<String, Product> redisTemplate;
+    private final ReactiveRedisTemplate<String, CacheItemProduct[]> redisTemplateArray;
+    private final ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    @Value("${time}")
+    Integer time;
 
     @Transactional
     public Mono<Page<ProductDto>> getAllProducts(int page, int size, String sort, String search) {
-        PageRequest pageRequest = switch (sort) {
-            case "ALPHA" -> PageRequest.of(page, size, Sort.by("name"));
-            case "PRICE" -> PageRequest.of(page, size, Sort.by("price"));
-            case "NO" -> PageRequest.of(page, size);
-            default -> throw new IllegalStateException("Unexpected value: " + sort);
-        };
-        Flux<Product> productDtoFlux = search!=null? productRepository.searchAllByNameContaining(search, pageRequest): productRepository.findAllBy(pageRequest);
+        Flux<Product> sortedProducts = getProductsFromCache()
+                .flatMapMany(Flux::fromIterable)
+                .filter(product -> search==null || product.getName().contains(search))
+                .sort(getCacheProductComparator(sort))
+                .flatMap(cacheItem -> productRepository
+                        .findById(cacheItem.getId())
+                        .map(i->new Product(cacheItem, i.getImage())))
+                .switchIfEmpty(productRepository
+                        .findAll()
+                        .collectList()
+                        .flatMap(this::saveListProductsToCache)
+                        .flatMapMany(Flux::fromIterable)
+                        .filter(product -> search==null || product.getName().contains(search))
+                        .sort(getProductComparator(sort)));
+
+        PageRequest pageRequest = PageRequest.of(page, size);
         Mono<Map<Long, BasketItem>> basketItems = cartRepository.findAll().collectMap(BasketItem::getProductId);
 
-        return basketItems.flatMapMany(basketItems1-> productDtoFlux.map(product -> {
-            BasketItem basketItem = basketItems1.getOrDefault(product.getId(), new BasketItem(0L, 0));
-            return mapToDto(product, basketItem);
-        })).collectList()
-                .zipWith(search != null
-                        ? productRepository.countByNameContaining(search)
-                        : productRepository.count())
-                .map(tuple-> new PageImpl<>(tuple.getT1(), pageRequest, tuple.getT2()));
+        return Mono.zip(sortedProducts.collectList(), basketItems)
+                .map(tuple -> {
+                    List<Product> allProducts = tuple.getT1();
+                    Map<Long, BasketItem> bItems = tuple.getT2();
 
+                    int offset = page * size;
+
+                    List<ProductDto> pageItems = allProducts.stream()
+                            .skip(offset)
+                            .limit(size)
+                            .map(product -> {
+                                BasketItem item = bItems.getOrDefault(product.getId(), new BasketItem(0L, 0));
+                                return mapToDto(product, item);
+                            })
+                            .toList();
+
+                    return new PageImpl<>(pageItems, pageRequest, allProducts.size());
+                });
+    }
+
+    private Mono<List<Product>> saveListProductsToCache(List<Product> l) {
+        CacheItemProduct[] toCache = l.stream()
+                .map(CacheItemProduct::new)
+                .toArray(CacheItemProduct[]::new);
+        return redisTemplateArray.opsForValue()
+                .set("Products:1", toCache, Duration.ofSeconds(time))
+                .thenReturn(l);
+    }
+
+    public Comparator<CacheItemProduct> getCacheProductComparator(String sort) {
+        return switch (sort) {
+            case "ALPHA", "NO" -> (Comparator.comparing(CacheItemProduct::getName));
+            case "PRICE" -> (Comparator.comparing(CacheItemProduct::getPrice));
+            default -> throw new IllegalStateException("Unexpected value: " + sort);
+        };
+    }
+    public Comparator<Product> getProductComparator(String sort) {
+        return switch (sort) {
+            case "ALPHA", "NO" -> (Comparator.comparing(Product::getName));
+            case "PRICE" -> (Comparator.comparing(Product::getPrice));
+            default -> throw new IllegalStateException("Unexpected value: " + sort);
+        };
     }
 
     public List<List<ProductDto>> convertToRows(Page<ProductDto> pages) {
@@ -63,12 +115,19 @@ public class ProductService {
 
     @Transactional
     public Mono<ProductDto> getProductDto(long id) {
-        return productRepository.findById(id)
+        return getProduct(id)
                 .switchIfEmpty(Mono.error(new ProductNotFoundException("Product not found")))
                 .flatMap(product -> cartRepository
                         .findByProductId(product.getId())
                         .defaultIfEmpty(new BasketItem(0L, 0))
-                        .map(basketItem -> mapToDto(product, basketItem)));
+                        .map(basketItem -> mapToDto(product, basketItem)))
+                ;
+    }
+
+    private Mono<Product> saveProductToCache(Product product) {
+        return redisTemplate.opsForValue()
+                .set("product:" + product.getId(), product, Duration.ofSeconds(time))
+                .thenReturn(product);
     }
 
     ProductDto mapToDto(Product product, BasketItem basketItem) {
@@ -99,6 +158,22 @@ public class ProductService {
                     Product product = new Product(itemDto.getName(), itemDto.getDescription(), itemDto.getPrice(), image, null);
                     return productRepository.save(product);
                 }).then();
+    }
+
+    public Mono<Product> getProduct(Long id) {
+        return redisTemplate.opsForValue()
+                .get("Product:" + id)
+                .cast(Product.class)
+                .switchIfEmpty(productRepository
+                        .findById(id)
+                        .flatMap(this::saveProductToCache));
+    }
+
+    public Mono<List<CacheItemProduct>> getProductsFromCache() {
+        return redisTemplateArray
+                .opsForValue()
+                .get("Products:1")
+                .map(Arrays::asList);
     }
 }
 

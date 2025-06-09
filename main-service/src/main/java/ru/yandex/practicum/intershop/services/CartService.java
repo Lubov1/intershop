@@ -2,7 +2,7 @@ package ru.yandex.practicum.intershop.services;
 
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -17,7 +17,6 @@ import ru.yandex.practicum.intershop.exceptions.PaymentServiceNotAvailableExcept
 import ru.yandex.practicum.intershop.exceptions.ProductNotFoundException;
 import ru.yandex.practicum.intershop.repositories.CartRepository;
 import ru.yandex.practicum.intershop.repositories.OrderRepository;
-import ru.yandex.practicum.intershop.repositories.ProductRepository;
 import ru.yandex.practicum.intershop.repositories.ProductorderRepository;
 
 import java.math.BigDecimal;
@@ -29,20 +28,19 @@ import static ru.yandex.practicum.intershop.services.BalanceStatus.*;
 @AllArgsConstructor
 public class CartService {
 
-    @Autowired
-    private ClientService clientService;
+    private final ClientService clientService;
     private final OrderRepository orderRepository;
-    private CartRepository cartRepository;
-    private ProductRepository productRepository;
-    private ProductorderRepository productorderRepository;
+    private final CartRepository cartRepository;
+    private final ProductService productService;
+    private final ProductorderRepository productorderRepository;
 
 
     @Transactional
     public Flux<Item> getBasketItems(){
         return cartRepository
                 .findAll()
-                .flatMap(basketItem -> productRepository.findById(basketItem.getProductId())
-                .map(product -> new Item(product, basketItem)));
+                .flatMap(basketItem -> productService.getProduct(basketItem.getProductId())
+                        .map(product -> new Item(product, basketItem)));
     }
 
     @Transactional
@@ -90,20 +88,14 @@ public class CartService {
     @Transactional
     public Mono<Long> makeOrder() {
         return cartRepository.findAll()
-                .flatMap(basketItem -> productRepository.findById(basketItem.getProductId())
+                .flatMap(basketItem -> productService.getProduct(basketItem.getProductId())
                         .map(product -> new Item(product, basketItem)))
                 .collectList()
                 .flatMap(items -> clientService.buyItems(getTotalPrice(items)).flatMap(balance-> {
                     if (balance.compareTo(BigDecimal.ZERO) < 0) {
-                        return Mono.error(new RuntimeException("balance less than zero"));
+                        return Mono.error(new RuntimeException("unsufficient balance"));
                     }
-                    return orderRepository.save(new Orders(getTotalPrice(items)))
-                            .flatMap(order -> productorderRepository
-                                    .saveAll(items.stream()
-                                            .map(basketItem -> new Productorder(basketItem.getId(), order.getId(), basketItem.getQuantity()))
-                                            .toList())
-                                    .then(cartRepository.deleteAll())
-                                    .thenReturn(order.getId()));
+                    return saveOrder(items);
                 }));
     }
 
@@ -113,4 +105,13 @@ public class CartService {
                 .onErrorResume(PaymentServiceNotAvailableException.class, ex -> Mono.just(SERVICE_UNAVAILABLE));
     }
 
+    private Mono<Long> saveOrder(List<Item> items) {
+        return orderRepository.save(new Orders(getTotalPrice(items)))
+                .flatMap(order -> productorderRepository
+                        .saveAll(items.stream()
+                                .map(basketItem -> new Productorder(basketItem.getId(), order.getId(), basketItem.getQuantity()))
+                                .toList())
+                        .then(cartRepository.deleteAll())
+                        .thenReturn(order.getId()));
+    }
 }

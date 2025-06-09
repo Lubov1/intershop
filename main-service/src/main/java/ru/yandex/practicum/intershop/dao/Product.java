@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import ru.yandex.practicum.intershop.dto.CacheItemProduct;
 
 import java.math.BigDecimal;
 
@@ -22,6 +23,14 @@ public class Product {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.image = image;
+    }
+
+    public Product(CacheItemProduct product, byte[] image) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.price = product.getPrice();
         this.image = image;
     }
 }
