@@ -16,7 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.yandex.practicum.intershop.IntershopApplication;
 
 @Testcontainers
-@SpringBootTest(classes = IntershopApplication.class)
+@SpringBootTest(classes = {IntershopApplication.class, EmbeddedRedisConfiguration.class})
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 public class ControllerTest {

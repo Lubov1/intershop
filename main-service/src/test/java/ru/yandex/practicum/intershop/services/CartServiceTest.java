@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import ru.yandex.practicum.intershop.client.ClientService;
 import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Product;
 import ru.yandex.practicum.intershop.dto.Item;
@@ -35,13 +36,16 @@ class CartServiceTest {
     private CartService cartService;
 
     @MockitoBean
+    private ClientService clientService;
+
+    @MockitoBean
     private CartRepository cartRepository;
 
     @MockitoBean
     private OrderRepository orderRepository;
 
     @MockitoBean
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @MockitoBean
     ProductorderRepository productorderRepository;
