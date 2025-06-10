@@ -1,6 +1,5 @@
 package ru.yandex.practicum.intershop.controllers;
 
-import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,7 +15,7 @@ public class ControllerExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({ProductNotFoundException.class, ActionNotFoundException.class})
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
+    public ResponseEntity<String> handleNotFoundException(Exception ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)

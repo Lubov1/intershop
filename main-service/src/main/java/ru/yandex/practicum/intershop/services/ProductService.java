@@ -1,6 +1,5 @@
 package ru.yandex.practicum.intershop.services;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -126,7 +125,7 @@ public class ProductService {
 
     private Mono<Product> saveProductToCache(Product product) {
         return redisTemplate.opsForValue()
-                .set("product:" + product.getId(), product, Duration.ofSeconds(time))
+                .set("Product:" + product.getId(), product, Duration.ofSeconds(time))
                 .thenReturn(product);
     }
 
