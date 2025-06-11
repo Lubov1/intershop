@@ -45,8 +45,11 @@ public class ProductService {
                 .filter(product -> search==null || product.getName().contains(search))
                 .sort(getCacheProductComparator(sort))
                 .flatMap(cacheItem -> productRepository
-                        .findById(cacheItem.getId())
-                        .map(i->new Product(cacheItem, i.getImage())))
+                                .findImageById(cacheItem.getId())
+                                .map(i->new Product(cacheItem, i))
+//                        .findById(cacheItem.getId())
+//                        .map(i->new Product(cacheItem, i.getImage()))
+                )
                 .switchIfEmpty(productRepository
                         .findAll()
                         .collectList()
