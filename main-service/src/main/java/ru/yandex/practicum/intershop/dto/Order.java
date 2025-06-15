@@ -12,4 +12,5 @@ public class Order {
     Long id;
     BigDecimal price;
     List<OrderItem> items;
+    String userName;
 }

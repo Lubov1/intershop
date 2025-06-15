@@ -12,11 +12,13 @@ CREATE TABLE if not exists PRODUCT(
 CREATE TABLE if not exists BASKETITEM(
                                        QUANTITY INT NOT NULL,
                                         product_id bigint primary key,
+                                       user_name VARCHAR(255) NOT NULL,
                                         FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
 );
 CREATE TABLE if not exists ORDERS(
                                       ID serial primary key ,
-                                      PRICE DECIMAL(10,2) NOT NULL
+                                      PRICE DECIMAL(10,2) NOT NULL,
+                                      user_name VARCHAR(255) NOT NULL
 );
 CREATE TABLE if not exists PRODUCTORDER(
                                       QUANTITY INT NOT NULL,
@@ -26,6 +28,7 @@ CREATE TABLE if not exists PRODUCTORDER(
                                        FOREIGN KEY (order_id) REFERENCES ORDERS(ID),
                                         FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
 );
+
 
 --rollback drop table PRODUCT;
 --rollback drop table BASKETITEM;

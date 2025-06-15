@@ -15,4 +15,5 @@ public class BasketItem {
     @Id
     private Long productId;
     private int quantity;
+    private String userName;
 }

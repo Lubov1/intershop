@@ -11,8 +11,14 @@ import ru.yandex.practicum.intershop.dao.BasketItem;
 
 @Repository
 public interface CartRepository extends R2dbcRepository<BasketItem, Long> {
-    Flux<BasketItem> findAll();
-    Mono<BasketItem> findByProductId(Long id);
-    @Query("INSERT INTO BASKETITEM (product_id, quantity) VALUES (:id, :qty) RETURNING *")
-    Mono<BasketItem> insert(@Param("id") Long id, @Param("qty") int qty);
+//    Flux<BasketItem> findAll();
+//    Flux<BasketItem> findAllByUserName(String userName);
+//    Mono<BasketItem> findByProductId(Long id);
+    Mono<BasketItem> findByProductIdAndUserName(Long id, String name);
+    @Query("INSERT INTO BASKETITEM (product_id, quantity) VALUES (:id, :qty, :name) RETURNING *")
+    Mono<BasketItem> insert(@Param("id") Long id, @Param("qty") int qty, @Param("name") String name);
+
+    Flux<BasketItem> findAllByUserName(String username);
+
+    Mono<Object> deleteAllByUserName(String userName);
 }

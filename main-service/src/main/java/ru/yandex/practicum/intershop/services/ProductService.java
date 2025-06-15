@@ -40,6 +40,7 @@ public class ProductService {
 
     @Transactional
     public Mono<Page<ProductDto>> getAllProducts(int page, int size, String sort, String search) {
+        String userName = "first";
         Flux<Product> sortedProducts = getProductsFromCache()
                 .flatMapMany(Flux::fromIterable)
                 .filter(product -> search==null || product.getName().contains(search))
@@ -56,7 +57,7 @@ public class ProductService {
                         .sort(getProductComparator(sort)));
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Mono<Map<Long, BasketItem>> basketItems = cartRepository.findAll().collectMap(BasketItem::getProductId);
+        Mono<Map<Long, BasketItem>> basketItems = cartRepository.findAllByUserName(userName).collectMap(BasketItem::getProductId);
 
         return Mono.zip(sortedProducts.collectList(), basketItems)
                 .map(tuple -> {
@@ -69,7 +70,7 @@ public class ProductService {
                             .skip(offset)
                             .limit(size)
                             .map(product -> {
-                                BasketItem item = bItems.getOrDefault(product.getId(), new BasketItem(0L, 0));
+                                BasketItem item = bItems.getOrDefault(product.getId(), new BasketItem(0L, 0, userName));
                                 return mapToDto(product, item);
                             })
                             .toList();
@@ -114,11 +115,12 @@ public class ProductService {
 
     @Transactional
     public Mono<ProductDto> getProductDto(long id) {
+        String userName = "first";
         return getProduct(id)
                 .switchIfEmpty(Mono.error(new ProductNotFoundException("Product not found")))
                 .flatMap(product -> cartRepository
-                        .findByProductId(product.getId())
-                        .defaultIfEmpty(new BasketItem(0L, 0))
+                        .findByProductIdAndUserName(product.getId(), userName)
+                        .defaultIfEmpty(new BasketItem(0L, 0, userName))
                         .map(basketItem -> mapToDto(product, basketItem)))
                 ;
     }

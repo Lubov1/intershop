@@ -16,7 +16,10 @@ public class Orders {
 
     private BigDecimal price;
 
-    public Orders(BigDecimal price) {
+    private String userName;
+
+    public Orders(BigDecimal price, String userName) {
         this.price = price;
+        this.userName = userName;
     }
 }

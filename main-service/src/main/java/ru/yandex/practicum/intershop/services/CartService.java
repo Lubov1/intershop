@@ -36,33 +36,35 @@ public class CartService {
 
     @Transactional
     public Flux<Item> getBasketItems(){
+        String userName = "first";
         return cartRepository
-                .findAll()
+                .findAllByUserName(userName)
                 .flatMap(basketItem -> productService.getProduct(basketItem.getProductId())
                         .map(product -> new Item(product, basketItem)));
     }
 
     @Transactional
     public Mono<Integer> changeQuantity(long id, String action) {
+        String userName = "first";
         return switch (action) {
-            case "plus" -> addItem(id);
-            case "minus" -> reduceItem(id);
+            case "plus" -> addItem(id, userName);
+            case "minus" -> reduceItem(id, userName);
             default -> Mono.error(new ActionNotFoundException());
         };
     }
 
-    Mono<Integer> addItem(Long id) {
-        return cartRepository.findByProductId(id)
+    Mono<Integer> addItem(Long id, String userName) {
+        return cartRepository.findByProductIdAndUserName(id, userName)
                 .flatMap(existing->{
                     existing.setQuantity(existing.getQuantity() + 1);
                     return cartRepository.save(existing);
                 })
-                .switchIfEmpty(Mono.defer(()->cartRepository.insert(id, 1)))
+                .switchIfEmpty(Mono.defer(()->cartRepository.insert(id, 1, userName)))
                 .map(BasketItem::getQuantity);
     }
 
-    Mono<Integer> reduceItem(Long id) {
-        return cartRepository.findByProductId(id)
+    Mono<Integer> reduceItem(Long id, String userName) {
+        return cartRepository.findByProductIdAndUserName(id, userName)
                 .switchIfEmpty(Mono.error(new ProductNotFoundException("product not found")))
                 .map(basketItem -> {
                     basketItem.setQuantity(basketItem.getQuantity() - 1);
@@ -86,7 +88,8 @@ public class CartService {
 
     @Transactional
     public Mono<Long> makeOrder() {
-        return cartRepository.findAll()
+        String userName = "first";
+        return cartRepository.findAllByUserName(userName)
                 .flatMap(basketItem -> productService.getProduct(basketItem.getProductId())
                         .map(product -> new Item(product, basketItem)))
                 .collectList()
@@ -98,6 +101,7 @@ public class CartService {
                 }));
     }
 
+    //todo
     public Mono<BalanceStatus> orderIsAllowed(BigDecimal price) {
         return clientService.getBalance()
                 .map(balance->balance.compareTo(price)>=0? OK : INSUFFICIENT_FUNDS)
@@ -105,12 +109,13 @@ public class CartService {
     }
 
     private Mono<Long> saveOrder(List<Item> items) {
-        return orderRepository.save(new Orders(getTotalPrice(items)))
+        String userName = "first";
+        return orderRepository.save(new Orders(getTotalPrice(items), userName))
                 .flatMap(order -> productorderRepository
                         .saveAll(items.stream()
                                 .map(basketItem -> new Productorder(basketItem.getId(), order.getId(), basketItem.getQuantity()))
                                 .toList())
-                        .then(cartRepository.deleteAll())
+                        .then(cartRepository.deleteAllByUserName(userName))
                         .thenReturn(order.getId()));
     }
 }
