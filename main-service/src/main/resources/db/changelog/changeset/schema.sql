@@ -9,24 +9,34 @@ CREATE TABLE if not exists PRODUCT(
     PRICE DECIMAL(10,2) NOT NULL,
     IMAGE bytea
 );
+
+CREATE TABLE if not exists USERS(
+                                    ID serial primary key ,
+                                    username VARCHAR(255) UNIQUE NOT NULL,
+                                    password VARCHAR(255) NOT NULL,
+                                    authority VARCHAR(255)
+);
+
 CREATE TABLE if not exists BASKETITEM(
-                                       QUANTITY INT NOT NULL,
-                                        product_id bigint primary key,
-                                       user_name VARCHAR(255) NOT NULL,
-                                        FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
+                                QUANTITY INT NOT NULL,
+                                product_id bigint primary key,
+                                user_name VARCHAR(255) NOT NULL,
+                                FOREIGN KEY (product_id) REFERENCES PRODUCT(ID),
+                                FOREIGN KEY (user_name) REFERENCES USERS(username)
 );
 CREATE TABLE if not exists ORDERS(
                                       ID serial primary key ,
                                       PRICE DECIMAL(10,2) NOT NULL,
-                                      user_name VARCHAR(255) NOT NULL
+                                      user_name VARCHAR(255) NOT NULL,
+                                      FOREIGN KEY (user_name) REFERENCES USERS(username)
 );
 CREATE TABLE if not exists PRODUCTORDER(
-                                      QUANTITY INT NOT NULL,
-                                        order_id BIGINT NOT NULL ,
-                                        product_id BIGINT NOT NULL,
-                                        PRIMARY KEY(order_id, product_id),
-                                       FOREIGN KEY (order_id) REFERENCES ORDERS(ID),
-                                        FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
+                                QUANTITY INT NOT NULL,
+                                order_id BIGINT NOT NULL ,
+                                product_id BIGINT NOT NULL,
+                                PRIMARY KEY(order_id, product_id),
+                                FOREIGN KEY (order_id) REFERENCES ORDERS(ID),
+                                FOREIGN KEY (product_id) REFERENCES PRODUCT(ID)
 );
 
 
@@ -34,3 +44,4 @@ CREATE TABLE if not exists PRODUCTORDER(
 --rollback drop table BASKETITEM;
 --rollback drop table PRODUCTORDER;
 --rollback drop table ORDERS;
+--rollback drop table USERS;
