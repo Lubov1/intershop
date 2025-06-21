@@ -6,10 +6,12 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.intershop.SecurityUtils;
 import ru.yandex.practicum.intershop.dao.BasketItem;
 import ru.yandex.practicum.intershop.dao.Product;
 import ru.yandex.practicum.intershop.dto.CacheItemProduct;
@@ -40,7 +42,7 @@ public class ProductService {
 
     @Transactional
     public Mono<Page<ProductDto>> getAllProducts(int page, int size, String sort, String search) {
-        String userName = "first";
+        Mono<String> userName = SecurityUtils.currentUsername();
         Flux<Product> sortedProducts = getProductsFromCache()
                 .flatMapMany(Flux::fromIterable)
                 .filter(product -> search==null || product.getName().contains(search))
@@ -57,7 +59,11 @@ public class ProductService {
                         .sort(getProductComparator(sort)));
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Mono<Map<Long, BasketItem>> basketItems = cartRepository.findAllByUserName(userName).collectMap(BasketItem::getProductId);
+        Mono<Map<Long, BasketItem>> basketItems = userName
+                .flatMap(name->cartRepository
+                .findAllByUserName(name)
+                .collectMap(BasketItem::getProductId))
+                .defaultIfEmpty(new HashMap<>());
 
         return Mono.zip(sortedProducts.collectList(), basketItems)
                 .map(tuple -> {
@@ -70,7 +76,7 @@ public class ProductService {
                             .skip(offset)
                             .limit(size)
                             .map(product -> {
-                                BasketItem item = bItems.getOrDefault(product.getId(), new BasketItem(0L, 0, userName));
+                                BasketItem item = bItems.getOrDefault(product.getId(), new BasketItem(0L, 0, "userName"));
                                 return mapToDto(product, item);
                             })
                             .toList();
@@ -115,13 +121,14 @@ public class ProductService {
 
     @Transactional
     public Mono<ProductDto> getProductDto(long id) {
-        String userName = "first";
+        Mono<String> userName = SecurityUtils.currentUsername();
         return getProduct(id)
                 .switchIfEmpty(Mono.error(new ProductNotFoundException("Product not found")))
-                .flatMap(product -> cartRepository
-                        .findByProductIdAndUserName(product.getId(), userName)
-                        .defaultIfEmpty(new BasketItem(0L, 0, userName))
-                        .map(basketItem -> mapToDto(product, basketItem)))
+                .zipWith(userName)
+                .flatMap(tuple -> cartRepository
+                        .findByProductIdAndUserName(tuple.getT1().getId(), tuple.getT2())
+                        .defaultIfEmpty(new BasketItem(0L, 0, tuple.getT2()))
+                        .map(basketItem -> mapToDto(tuple.getT1(), basketItem)))
                 ;
     }
 
@@ -143,6 +150,7 @@ public class ProductService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public Mono<Void> createItem(ItemDto itemDto) {
         Mono<DataBuffer> dataBufferMono = itemDto.getImage() == null
                 ? Mono.empty()

@@ -3,9 +3,11 @@ package ru.yandex.practicum.intershop.services;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.r2dbc.core.DatabaseClient;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import ru.yandex.practicum.intershop.SecurityUtils;
 import ru.yandex.practicum.intershop.dao.Product;
 import ru.yandex.practicum.intershop.dto.Order;
 import ru.yandex.practicum.intershop.dto.OrderItem;
@@ -21,6 +23,7 @@ public class OrdersService {
     private final DatabaseClient databaseClient;
 
     @Transactional
+    @PostAuthorize("returnObject?.userName == authentication.name")
     public Mono<Order> getOrder(Long id) {
         String query = """
             SELECT 
@@ -65,7 +68,6 @@ public class OrdersService {
 
     @Transactional
     public Mono<List<Order>> getOrders() {
-        String userName = "first";
         String query = """
             SELECT 
                 p.id AS product_id,
@@ -83,7 +85,8 @@ public class OrdersService {
             WHERE o.user_name=:userName
         """;
 
-        return databaseClient.sql(query)
+        return SecurityUtils.currentUsername().flatMap(userName->databaseClient
+                .sql(query)
                 .bind("userName", userName)
                 .map(row -> new OrderItem(
                         row.get("order_id", Long.class),
@@ -99,7 +102,7 @@ public class OrdersService {
                 .groupBy(OrderItem::getOrderId)
                 .flatMap(grouped->grouped.collectList().map(list-> Map.entry(grouped.key(), list)))
                 .map(e->new Order(e.getKey(), getTotalPrice(e.getValue()), e.getValue(), userName))
-                .collectList();
+                .collectList());
     }
 
     public BigDecimal getTotalPrice(List<OrderItem> items) {

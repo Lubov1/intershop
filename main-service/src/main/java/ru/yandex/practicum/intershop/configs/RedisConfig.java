@@ -38,4 +38,17 @@ public class RedisConfig {
 
         return new ReactiveRedisTemplate<>(factory, context);
     }
+
+    @Bean
+    public ReactiveRedisTemplate<String, String> userSessionMap(ReactiveRedisConnectionFactory factory) {
+        Jackson2JsonRedisSerializer<String> serializer =
+                new Jackson2JsonRedisSerializer<>(String.class);
+
+        RedisSerializationContext<String, String> context = RedisSerializationContext
+                .<String, String>newSerializationContext(new StringRedisSerializer())
+                .value(serializer)
+                .build();
+
+        return new ReactiveRedisTemplate<>(factory, context);
+    }
 }

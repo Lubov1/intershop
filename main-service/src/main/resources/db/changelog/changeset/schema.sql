@@ -19,8 +19,9 @@ CREATE TABLE if not exists USERS(
 
 CREATE TABLE if not exists BASKETITEM(
                                 QUANTITY INT NOT NULL,
-                                product_id bigint primary key,
+                                product_id bigint NOT NULL,
                                 user_name VARCHAR(255) NOT NULL,
+                                PRIMARY KEY (user_name, product_id),
                                 FOREIGN KEY (product_id) REFERENCES PRODUCT(ID),
                                 FOREIGN KEY (user_name) REFERENCES USERS(username)
 );

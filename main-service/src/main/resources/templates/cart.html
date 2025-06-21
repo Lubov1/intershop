@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <title>Корзина товаров</title>
@@ -8,7 +8,8 @@
 
 <body>
 <!-- В href ссылка на страницу заказов -->
-<a th:href="@{/orders}" style="float:right;">
+
+<a sec:authorize="isAuthenticated()" th:href="@{/orders}" style="float:right;">
     <b>ЗАКАЗЫ &cudarrr;</b>
 </a>
 <!-- В href ссылка на главную страницу -->
