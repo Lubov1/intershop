@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.HttpStatusReturningServerLogoutSuccessHandler;
 import reactor.core.publisher.Mono;
@@ -41,6 +43,7 @@ public class SecurityConfig {
                         .anyExchange().access((mono, context) ->
                                 mono.map(auth -> auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken))
                                         .map(AuthorizationDecision::new)))
+                .addFilterAt(new AnonymousAuthenticationWebFilter("my-key"), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .logout(logoutSpec -> logoutSpec
                         .logoutUrl("/logout")
@@ -98,11 +101,12 @@ class CustomAuthenticationSuccessHandler implements ServerAuthenticationSuccessH
                                 sessionRegistry.registerSession(username, sessionId);
                                 return Mono.empty();
                             })
-                            .flatMap(m->{
+                            .then( Mono.defer(()->{
                                 ServerHttpResponse response = exchange.getExchange().getResponse();
                                 response.setStatusCode(HttpStatus.SEE_OTHER);
                                 response.getHeaders().setLocation(URI.create("/main"));
-                                return response.setComplete();});
-                });
+                                return response.setComplete();}));});
+
+
     }
 }

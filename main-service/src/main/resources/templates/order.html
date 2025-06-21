@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <title>Заказ</title>
@@ -12,12 +12,15 @@
     <b>ЗАКАЗЫ &cudarrr;</b>
 </a>
 <!-- В href ссылка на корзину -->
-<a th:href="@{/cart}" style="float:right;">
+<a sec:authorize="isAuthenticated()" th:href="@{/cart}" style="float:right;">
     <b>КОРЗИНА &cudarrr;</b>
 </a>
 <!-- В href ссылка на главную страницу -->
 <a th:href="@{/main}" style="float:right;">
     <b>ГЛАВНАЯ &cudarrr;</b>
+</a>
+<a sec:authorize="isAuthenticated()" th:href="@{/logout}" style="float:right;">
+    <b>Выйти &cudarrr;</b>
 </a>
 <!-- В if true, если перешли со страницы оформления заказа, false в остальных случаях -->
 <h1 style="text-align:center" th:if="${redirect}==true">Поздравляем! Успешная покупка! &#128578;</h1>

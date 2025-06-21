@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <title>Витрина товаров</title>
@@ -8,15 +8,18 @@
 
 <body>
     <!-- В href ссылка на страницу заказов -->
-    <a th:href="@{/orders}" style="float:right;">
+    <a sec:authorize="isAuthenticated()" th:href="@{/orders}" style="float:right;">
         <b>ЗАКАЗЫ &cudarrr;</b>
     </a>
     <!-- В href ссылка на корзину -->
-    <a th:href="@{/cart}" style="float:right;">
+    <a sec:authorize="isAuthenticated()" th:href="@{/cart}" style="float:right;">
         <b>КОРЗИНА &cudarrr;</b>
     </a>
-    <a th:href="@{/register}" style="float:right;">
+    <a th:if="${isAnonymous}" th:href="@{/register}" style="float:right;">
         <b>Регистрация &cudarrr;</b>
+    </a>
+    <a sec:authorize="isAuthenticated()" th:href="@{/logout}" style="float:right;">
+        <b>Выйти &cudarrr;</b>
     </a>
 
     <table style="width:70%;margin-left:auto;margin-right:auto;">
@@ -107,7 +110,7 @@
                     		В action ссылка на изменение количества товара в корзине.
                     		Передается параметр запроса action=[minus|plus]
                     	    -->
-                            <form th:action="@{/cart/update}" method="post">
+                            <form sec:authorize="isAuthenticated()" th:action="@{/cart/update}" method="post">
                                 <input type="hidden" name="productId" th:value="${product.id}" />
                                 <button name="action" value="minus">-</button>
                                 <!-- В text количество товара в корзине -->
@@ -123,7 +126,7 @@
         </tr>
     </table>
 
-    <div class="form-container">
+    <div th:if="${isAdmin}" class="form-container">
         <h2>Добавить новый пост</h2>
         <form th:action="@{/main/createItem}" method="post" enctype="multipart/form-data">
             <label>Название:</label>

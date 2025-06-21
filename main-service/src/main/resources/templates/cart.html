@@ -16,6 +16,9 @@
 <a th:href="@{/main}" style="float:right;">
     <b>ГЛАВНАЯ &cudarrr;</b>
 </a>
+<a sec:authorize="isAuthenticated()" th:href="@{/logout}" style="float:right;">
+    <b>Выйти &cudarrr;</b>
+</a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
    <!-- Итерируемся по каждому товару -->
     <tr th:each="item : ${items}">

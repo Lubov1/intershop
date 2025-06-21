@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <title>Витрина товаров</title>
@@ -12,12 +12,15 @@
         <b>ЗАКАЗЫ &cudarrr;</b>
     </a>
     <!-- В href ссылка на корзину -->
-    <a th:href="@{/cart}" style="float:right;">
+    <a sec:authorize="isAuthenticated()" th:href="@{/cart}" style="float:right;">
         <b>КОРЗИНА &cudarrr;</b>
     </a>
     <!-- В href ссылка на главную страницу -->
     <a th:href="@{/main}" style="float:right;">
         <b>ГЛАВНАЯ &cudarrr;</b>
+    </a>
+    <a sec:authorize="isAuthenticated()" th:href="@{/logout}" style="float:right;">
+        <b>Выйти &cudarrr;</b>
     </a>
     <div style="width:70%;margin-left:auto;margin-right:auto;">
         <p>
@@ -38,7 +41,7 @@
 		В action ссылка на изменение количества товара в корзине.
 		Передается параметр запроса action=[minus|plus]
 	-->
-        <form th:action="@{/cart/update}" method="post">
+        <form sec:authorize="isAuthenticated()" th:action="@{/cart/update}" method="post">
             <input type="hidden" name="productId" th:value="${product.id}" />
             <button name="action" value="minus">-</button>
             <!-- В text количество товара в корзине -->

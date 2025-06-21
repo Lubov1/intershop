@@ -1,7 +1,8 @@
 --liquibase formatted sql
 --changeset dolgaia:4
 INSERT INTO USERS (username, password, authority) VALUES
-                                          ('user1', '$2a$10$4S95ssTOU0Uj1mq/q3xFxutLT0RCj0JoFSua06/9Z8pE73nsakqG6', 'ROLE_USER');
+                                          ('user1', '$2a$10$4S95ssTOU0Uj1mq/q3xFxutLT0RCj0JoFSua06/9Z8pE73nsakqG6', 'ROLE_USER'),
+                                          ('admin', '$2a$10$4S95ssTOU0Uj1mq/q3xFxutLT0RCj0JoFSua06/9Z8pE73nsakqG6', 'ROLE_ADMIN');
 
 INSERT INTO BASKETITEM (QUANTITY, product_id, user_name) VALUES
                                                   (2, 1, 'user1'),
