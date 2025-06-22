@@ -2,6 +2,7 @@ package ru.yandex.practicum.intershop.services;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -36,6 +37,7 @@ public class CartService {
 
 
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public Flux<Item> getBasketItems(){
         return SecurityUtils.currentUsername()
                 .flatMapMany(userName->cartRepository
@@ -46,6 +48,7 @@ public class CartService {
     }
 
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public Mono<Integer> changeQuantity(long id, String action) {
         Mono<String> userName = SecurityUtils.currentUsername();
         return switch (action) {
@@ -89,6 +92,7 @@ public class CartService {
     }
 
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public Mono<Long> makeOrder() {
         return SecurityUtils.currentUsername()
                 .flatMap(userName->cartRepository.findAllByUserName(userName)

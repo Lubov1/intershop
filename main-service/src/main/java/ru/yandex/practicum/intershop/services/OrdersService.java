@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -67,6 +68,7 @@ public class OrdersService {
     }
 
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public Mono<List<Order>> getOrders() {
         String query = """
             SELECT 
