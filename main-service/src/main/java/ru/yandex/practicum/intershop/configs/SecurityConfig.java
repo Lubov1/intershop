@@ -17,18 +17,13 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.HttpStatusReturningServerLogoutSuccessHandler;
 import reactor.core.publisher.Mono;
-import org.springframework.web.server.WebSession;
-import ru.yandex.practicum.intershop.dao.UserDao;
 import org.springframework.security.authorization.AuthorizationDecision;
 import ru.yandex.practicum.intershop.repositories.UserRepository;
 import ru.yandex.practicum.intershop.services.SessionRegistry;
 import ru.yandex.practicum.intershop.services.UserDetailsServiceImpl;
 
 import java.net.URI;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableReactiveMethodSecurity
 @Configuration
@@ -65,8 +60,7 @@ public class SecurityConfig {
 
     @Bean
     public ReactiveUserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        UserDetailsServiceImpl service = new UserDetailsServiceImpl(userRepository, passwordEncoder);
-        return service;
+        return new UserDetailsServiceImpl(userRepository, passwordEncoder);
     }
 
     @Bean PasswordEncoder passwordEncoder() {

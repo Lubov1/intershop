@@ -4,13 +4,15 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://payment-service:8081
+  - url: http://localhost:8081
     description: Локальный сервер
 
 paths:
   /balance:
     get:
       summary: Баланс
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: ""
@@ -21,6 +23,8 @@ paths:
   /buy:
     post:
       summary: Баланс
+      security:
+        - bearerAuth: [ ]
       parameters:
         - name: price
           in: query
@@ -48,3 +52,8 @@ components:
       properties:
         amount:
           type: number
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

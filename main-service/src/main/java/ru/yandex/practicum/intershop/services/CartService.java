@@ -107,7 +107,6 @@ public class CartService {
                 })));
     }
 
-    //todo
     public Mono<BalanceStatus> orderIsAllowed(BigDecimal price) {
         return clientService.getBalance()
                 .map(balance->balance.compareTo(price)>=0? OK : INSUFFICIENT_FUNDS)
