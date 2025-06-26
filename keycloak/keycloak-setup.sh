@@ -1,4 +1,4 @@
-# keycloak-setup.sh  (сделай chmod +x)
+# keycloak-setup.sh
 #!/bin/bash
 set -e
 
@@ -13,7 +13,6 @@ do
 done
 echo "✅ Keycloak is up"
 
-# ── создаём / обновляем клиента ──────────────────────────────────────────────
 EXISTS=$(/opt/keycloak/bin/kcadm.sh get clients -r master --fields clientId \
           | grep -o '"intershop"' || true)
 

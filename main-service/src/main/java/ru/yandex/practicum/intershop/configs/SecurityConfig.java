@@ -34,7 +34,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .authenticationSuccessHandler(new CustomAuthenticationSuccessHandler(sessionRegistry)))
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/main", "/login", "/register").permitAll()
+                        .pathMatchers("/main", "/login", "/register", "main/product/*").permitAll()
+                        .pathMatchers("main/createItem").hasRole("ADMIN")
                         .anyExchange().access((mono, context) ->
                                 mono.map(auth -> auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken))
                                         .map(AuthorizationDecision::new)))

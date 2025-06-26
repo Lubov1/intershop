@@ -2,6 +2,9 @@ FROM maven:3.9-eclipse-temurin AS builder
 WORKDIR /build
 COPY . .
 RUN mvn -pl payment-service -am clean package -DskipTests
+RUN echo "=== JAR-files under /build ===" \
+ && find /build -type f -name "*.jar" -print \
+ || true
 
 FROM openjdk:21-bullseye
 

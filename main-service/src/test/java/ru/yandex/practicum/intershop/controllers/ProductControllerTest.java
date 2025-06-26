@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import ru.yandex.practicum.intershop.dao.Product;
 import ru.yandex.practicum.intershop.dto.CacheItemProduct;
 import ru.yandex.practicum.intershop.services.ProductService;
@@ -29,7 +32,14 @@ class ProductControllerTest extends ControllerTest {
     @Test
     void getProduct() throws InterruptedException {
         Long productId = 5L;
-        webTestClient.get().uri("/main/product/" + productId)
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/main/product/" + productId)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
@@ -63,7 +73,14 @@ class ProductControllerTest extends ControllerTest {
     }
     @Test
     void getProducts() throws InterruptedException {
-        webTestClient.get().uri("/main")
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/main")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")

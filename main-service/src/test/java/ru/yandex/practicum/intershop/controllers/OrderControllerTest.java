@@ -1,6 +1,11 @@
 package ru.yandex.practicum.intershop.controllers;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,7 +13,14 @@ class OrderControllerTest extends ControllerTest {
 
     @Test
     void getOrders() {
-        webTestClient.get().uri("/orders")
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/orders")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
@@ -25,7 +37,14 @@ class OrderControllerTest extends ControllerTest {
     void GetOrder() {
         Long orderId = 1L;
 
-        webTestClient.get().uri("/orders/order/"+orderId)
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/orders/order/"+orderId)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")

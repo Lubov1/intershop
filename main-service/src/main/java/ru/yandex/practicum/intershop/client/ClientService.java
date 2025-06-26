@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 
 @Service
 public class ClientService {
-    @Value("${spring.security.oauth2.client.registration.intershop.client-id}")
+    @Value("${spring.security.oauth2.client.registration.intershop.client-id:intershop}")
     private String keyloakClientId;
 
     private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;

@@ -48,7 +48,7 @@ public class CartService {
     }
 
     @Transactional
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public Mono<Integer> changeQuantity(long id, String action) {
         Mono<String> userName = SecurityUtils.currentUsername();
         return switch (action) {
@@ -59,7 +59,8 @@ public class CartService {
     }
 
     Mono<Integer> addItem(Long id, String userName) {
-        return cartRepository.findByProductIdAndUserName(id, userName)
+        return cartRepository
+                .findByProductIdAndUserName(id, userName)
                 .flatMap(existing->{
                     existing.setQuantity(existing.getQuantity() + 1);
                     return cartRepository.save(existing);

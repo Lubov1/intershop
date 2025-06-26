@@ -4,10 +4,15 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +33,14 @@ class CartControllerTest extends ControllerTest {
     }
     @Test
     void getCart() {
-        webTestClient.get().uri("/cart")
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/cart")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
@@ -47,7 +59,14 @@ class CartControllerTest extends ControllerTest {
     void addToCartPlus() {
         Long productId = 1L;
         String action = "plus";
-        webTestClient.post().uri(uriBuilder -> uriBuilder
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .post().uri(uriBuilder -> uriBuilder
                         .path("/cart/update")
                         .queryParam("productId", String.valueOf(productId))
                         .queryParam("action", action)
@@ -55,7 +74,15 @@ class CartControllerTest extends ControllerTest {
                 .exchange()
                 .expectStatus().isSeeOther();
 
-        webTestClient.get().uri("/main/product/" + productId)
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get()
+                .uri("/main/product/" + productId)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
@@ -73,7 +100,14 @@ class CartControllerTest extends ControllerTest {
     void addToCartMinus() {
         Long productId = 2L;
         String action = "minus";
-        webTestClient.post().uri(uriBuilder -> uriBuilder
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .post().uri(uriBuilder -> uriBuilder
                         .path("/cart/update")
                         .queryParam("productId", String.valueOf(productId))
                         .queryParam("action", action)
@@ -81,7 +115,14 @@ class CartControllerTest extends ControllerTest {
                 .exchange()
                 .expectStatus().isSeeOther();
 
-        webTestClient.get().uri("/main/product/" + productId)
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/main/product/" + productId)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
@@ -99,7 +140,13 @@ class CartControllerTest extends ControllerTest {
     void notExistAction() {
         Long productId = 1L;
         String action = "not exist";
-        webTestClient.post().uri(uriBuilder -> uriBuilder
+        webTestClient.mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .post().uri(uriBuilder -> uriBuilder
                         .path("/cart/update")
                         .queryParam("productId", String.valueOf(productId))
                         .queryParam("action", action)
@@ -111,13 +158,25 @@ class CartControllerTest extends ControllerTest {
     @Test
     @Tag("init-db")
     void buy() {
-        webTestClient.post().uri(uriBuilder -> uriBuilder
+        webTestClient.mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .post().uri(uriBuilder -> uriBuilder
                         .path("/cart/buy")
                         .build())
                 .exchange()
                 .expectStatus().isSeeOther();
 
-        webTestClient.get().uri("/cart")
+        webTestClient.mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/cart")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
@@ -127,7 +186,14 @@ class CartControllerTest extends ControllerTest {
                     assertFalse(body.contains("продукт"));
                 });
 
-        webTestClient.get().uri("/orders")
+        webTestClient
+                .mutateWith(
+                        SecurityMockServerConfigurers.mockAuthentication(
+                                new UsernamePasswordAuthenticationToken(
+                                        "user1", null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                )
+                        ))
+                .get().uri("/orders")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType("text/html")
