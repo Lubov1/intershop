@@ -1,6 +1,6 @@
 package ru.yandex.practicum.paymentservice.services;
 
-import org.springframework.beans.factory.annotation.Value;
+ximport org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
